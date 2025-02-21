@@ -7,7 +7,5 @@ export function displayStatusEnum(field: API.IStatusEnum) {
 }
 
 export function displayStatusEnum2(field: API.IStatusEnum2) {
-  return { placed: 'placed', approved: 'approved', delivered: 'delivered' }[
-    field
-  ];
+  return { placed: 'placed', approved: 'approved', delivered: 'delivered' }[field];
 }

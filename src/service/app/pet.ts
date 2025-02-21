@@ -157,15 +157,12 @@ export async function uploadFile({
 }
 
 /** Finds Pets by status Multiple status values can be provided with comma separated strings GET /pet/findByStatus */
-export async function findPetsByStatus({
-  params,
-  options,
-}: {
+export async function findPetsByStatus(
   // 叠加生成的Param类型 (非body参数openapi默认没有生成对象)
-  params: API.findPetsByStatusParams;
-  options?: CustomRequestOptions;
-}) {
-  return request<API.Pet[]>('/pet/findByStatus', {
+  params: API.findPetsByStatusParams,
+  options?: CustomRequestOptions,
+) {
+  return request<API.Pet[]>('/getFocusPictureList.json', {
     method: 'GET',
     params: {
       ...params,

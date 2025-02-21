@@ -1,5 +1,12 @@
 /* eslint-disable */
 // @ts-ignore
+import { DefaultError } from "@tanstack/vue-query";
+import { Ref } from 'vue';
+
+export type MutationCallbacks = {
+  onSuccess?: (value?: unknown) => void;
+  onError?: (error?: DefaultError) => void;
+}
 
 export type ApiResponse = {
   code?: number;
@@ -29,7 +36,7 @@ export type deleteUserParams = {
 
 export type findPetsByStatusParams = {
   /** Status values that need to be considered for filter */
-  status: ('available' | 'pending' | 'sold')[];
+  focusID: string;
 };
 
 export type findPetsByTagsParams = {

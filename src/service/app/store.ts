@@ -5,7 +5,7 @@ import { CustomRequestOptions } from '@/interceptors/request';
 
 import * as API from './types';
 
-/** Returns pet inventories by status Returns a map of status codes to quantities GET /store/inventory */
+/** 按状态返回宠物库存 返回状态代码到数量的映射 GET /store/inventory */
 export async function getInventory({
   options,
 }: {
@@ -17,7 +17,7 @@ export async function getInventory({
   });
 }
 
-/** Place an order for a pet POST /store/order */
+/** 下订单购买宠物 POST /store/order */
 export async function placeOrder({
   body,
   options,
@@ -35,7 +35,7 @@ export async function placeOrder({
   });
 }
 
-/** Find purchase order by ID For valid response try integer IDs with value >= 1 and <= 10. Other values will generated exceptions GET /store/order/${param0} */
+/** 通过 ID 查找采购订单 要获得有效响应，请尝试使用值 >= 1 且 <= 10 的整数 ID。其他值将产生异常 GET /store/order/${param0} */
 export async function getOrderById({
   params,
   options,
@@ -53,7 +53,7 @@ export async function getOrderById({
   });
 }
 
-/** Delete purchase order by ID For valid response try integer IDs with positive integer value. Negative or non-integer values will generate API errors DELETE /store/order/${param0} */
+/** 按 ID 删除采购订单 要获得有效响应，请尝试使用具有正整数值的整数 ID。负数或非整数值将生成 API 错误 DELETE /store/order/${param0} */
 export async function deleteOrder({
   params,
   options,

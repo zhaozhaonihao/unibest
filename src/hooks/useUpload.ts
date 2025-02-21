@@ -56,7 +56,10 @@ function uploadFile<T>({ tempFilePath, formData, data, error, loading }) {
     name: 'file',
     formData,
     success: (uploadFileRes) => {
-      data.value = uploadFileRes.data as T
+      console.log(uploadFileRes)
+      const res = JSON.parse(uploadFileRes.data)
+      data.value = res?.body?.filesURL as T
+      console.log(res?.body?.filesURL)
     },
     fail: (err) => {
       console.error('uni.uploadFile err->', err)

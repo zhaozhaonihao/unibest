@@ -22,7 +22,10 @@
 </template>
 
 <script lang="ts" setup>
-const { loading, data, run } = useUpload({ user: '菲鸽' })
+const { loading, data, run } = useUpload({
+  fileBucketID: '8a2f462a850617e301851e5760810d72',
+  sessionID: 'b3e1b5e69ee742d1bd4211d3ae5106a8',
+})
 </script>
 
 <style lang="scss" scoped>
