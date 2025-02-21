@@ -96,6 +96,22 @@
     "onWatcherCleanup": true,
     "useId": true,
     "useModel": true,
-    "useTemplateRef": true
+    "useTemplateRef": true,
+    "useQuery": true,
+    "queryOptions": true,
+    "useMutation": true,
+    "APPID": true,
+    "APPLICATIONID": true,
+    "BASEURL": true,
+    "COMPANYID": true,
+    "DEVICEID": true,
+    "FILEBUCKETID": true,
+    "FOCUSID": true,
+    "NAVIGATORID": true,
+    "PUBLICNO": true,
+    "SEARCHDEFINEID": true,
+    "SHOPID": true,
+    "SITEID": true,
+    "WEIXINID": true
   }
 }

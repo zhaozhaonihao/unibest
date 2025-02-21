@@ -1,7 +1,6 @@
-/* eslint-disable */
-// @ts-ignore
 import { DefaultError } from "@tanstack/vue-query";
 import { Ref } from 'vue';
+export type { CustomRequestOptions } from '@/interceptors/request';
 
 export type MutationCallbacks = {
   onSuccess?: (value?: unknown) => void;

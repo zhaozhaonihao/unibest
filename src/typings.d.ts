@@ -2,9 +2,8 @@
 
 declare global {
   type IResData<T> = {
-    code: number
-    msg: string
-    data: T
+    body: T & { data: T }
+    header: { code: number; msg: string }
   }
 
   // uni.uploadFile文件上传参数

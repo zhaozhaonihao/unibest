@@ -77,9 +77,15 @@ export default ({ command, mode }) => {
       },
       UnoCSS(),
       AutoImport({
-        imports: ['vue', 'uni-app'],
+        imports: [
+          'vue',
+          'uni-app',
+          {
+            '@tanstack/vue-query': ['useQuery'],
+          },
+        ],
         dts: 'src/types/auto-import.d.ts',
-        dirs: ['src/hooks'], // 自动导入 hooks
+        dirs: ['src/hooks', 'src/composables/constants'], // 自动导入 hooks
         eslintrc: { enabled: true },
         vueTemplate: true, // default false
       }),
