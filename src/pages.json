@@ -47,6 +47,13 @@
       }
     },
     {
+      "path": "pages/test",
+      "type": "page",
+      "style": {
+        "navigationBarTitleText": "测试页面"
+      }
+    },
+    {
       "path": "pages/about/about",
       "type": "page",
       "style": {

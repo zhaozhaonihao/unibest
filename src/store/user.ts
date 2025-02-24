@@ -10,18 +10,21 @@ export const useUserStore = defineStore(
     const openID = ref<string | undefined>()
 
     const getOpenId = () => {
-      console.log('🐛', 'getOpenId')
-
       if (!openID.value) {
+        // #ifdef MP-WEIXIN
         uni.login({
           provider: 'weixin',
           success: async ({ code }) => {
             const { run } = useRequest(() => getWeiXinAppOpenId(code))
             const res = await run()
             openID.value = res.openID
-            console.log('🐛', 'openID', openID.value)
           },
         })
+        // #endif
+        // #ifdef H5
+        console.log('🐛 发起网络请求获取 openID ......')
+        openID.value = '123'
+        // #endif
       }
     }
 
