@@ -1,14 +1,18 @@
 import { defineStore } from 'pinia'
-import { getWeiXinAppOpenId } from '@/service/static/login'
+import {
+  type MemberMajor,
+  getMyMemberMajorList,
+  getOneMemberDetail,
+  getWeiXinAppOpenId,
+  openIDorUnionIDFastLogin,
+} from '@/service/static/login'
 
-const initState = { nickname: '', avatar: '' }
+import dayjs from 'dayjs'
 
 export const useUserStore = defineStore(
   'user',
   () => {
-    const userInfo = ref<IUserInfo>({ ...initState })
     const openID = ref<string | undefined>()
-
     const getOpenId = () => {
       if (!openID.value) {
         // #ifdef MP-WEIXIN
@@ -23,33 +27,60 @@ export const useUserStore = defineStore(
         // #endif
         // #ifdef H5
         console.log('🐛 发起网络请求获取 openID ......')
-        openID.value = '123'
+        openID.value = 'oMtfx6zNY_ULesEzXWbFkI0iHELo'
         // #endif
       }
+
+      return openID.value
     }
 
-    const setUserInfo = (val: IUserInfo) => {
-      userInfo.value = val
+    const loginInfo = ref<ILoginSession>()
+    const isLoginExpired = computed(() => {
+      return !loginInfo.value || dayjs().diff(loginInfo.value.time, 'minute') > 60
+    })
+    const onLogin = async () => {
+      if (openID.value) {
+        const { run } = useRequest(() => openIDorUnionIDFastLogin(openID.value))
+        const res = await run()
+        loginInfo.value = { ...res, time: dayjs() }
+        getMemberInfo()
+      }
+    }
+    const isLogined = computed(() => loginInfo.value.memberID && loginInfo.value.sessionID)
+
+    const member = ref<MemberMajor[]>([])
+    const getMemberInfo = async () => {
+      const { run } = useRequest(() => getMyMemberMajorList())
+      const res = await run()
+      member.value = res.rows
     }
 
-    const clearUserInfo = () => {
-      userInfo.value = { ...initState }
+    const memberDetail = ref()
+    const getOnmberDetail = async () => {
+      const { run } = useRequest(() => getOneMemberDetail())
+      const res = await run()
+      console.log('getOneMemberDetail', res)
     }
-    // 一般没有reset需求，不需要的可以删除
-    const reset = () => {
-      userInfo.value = { ...initState }
-    }
-    const isLogined = computed(() => !!userInfo.value.token)
+
+    const isChengguan = computed(() => {
+      return member.value.some((item) => item.majorID === MAJOR_ID_CHENGGUAN)
+    })
 
     return {
       openID,
       getOpenId,
 
-      userInfo,
-      setUserInfo,
-      clearUserInfo,
+      loginInfo,
+      isLoginExpired,
+      onLogin,
       isLogined,
-      reset,
+
+      member,
+      getMemberInfo,
+
+      getOnmberDetail,
+
+      isChengguan,
     }
   },
   {

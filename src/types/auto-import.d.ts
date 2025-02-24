@@ -13,6 +13,7 @@ declare global {
   const EffectScope: typeof import('vue')['EffectScope']
   const FILEBUCKETID: typeof import('../hooks/constants')['FILEBUCKETID']
   const FOCUSID: typeof import('../hooks/constants')['FOCUSID']
+  const MAJOR_ID_CHENGGUAN: typeof import('../hooks/constants')['MAJOR_ID_CHENGGUAN']
   const NAVIGATORID: typeof import('../hooks/constants')['NAVIGATORID']
   const PUBLICNO: typeof import('../hooks/constants')['PUBLICNO']
   const SEARCHDEFINEID: typeof import('../hooks/constants')['SEARCHDEFINEID']
@@ -125,6 +126,7 @@ declare module 'vue' {
     readonly EffectScope: UnwrapRef<typeof import('vue')['EffectScope']>
     readonly FILEBUCKETID: UnwrapRef<typeof import('../hooks/constants')['FILEBUCKETID']>
     readonly FOCUSID: UnwrapRef<typeof import('../hooks/constants')['FOCUSID']>
+    readonly MAJOR_ID_CHENGGUAN: UnwrapRef<typeof import('../hooks/constants')['MAJOR_ID_CHENGGUAN']>
     readonly NAVIGATORID: UnwrapRef<typeof import('../hooks/constants')['NAVIGATORID']>
     readonly PUBLICNO: UnwrapRef<typeof import('../hooks/constants')['PUBLICNO']>
     readonly SEARCHDEFINEID: UnwrapRef<typeof import('../hooks/constants')['SEARCHDEFINEID']>

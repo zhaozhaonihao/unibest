@@ -1,12 +1,15 @@
 import { http } from '@/utils/http'
 
-export interface MemberPhone {
-  phoneNumber: string
+export type MemberMajor = {
+  majorID: string
 }
 
-export const openIDorUnionIDFastLogin = (code: string) => {
-  return http.get<IPageData<MemberPhone>>('/openIDorUnionIDFastLogin.json', {
-    publicNo: PUBLICNO,
+/** 登录授权页面 获取手机号 */
+export const getWeixinMemberPhone = (encryptedData: string, iv: string, code: string) => {
+  return http.get<IPageData<{ phoneNumber: string }>>('/getWeixinMemberPhone.json', {
+    appID: APPID,
+    encryptedData,
+    iv,
     js_code: code,
   })
 }
@@ -19,11 +22,26 @@ export const getWeiXinAppOpenId = (code: string) => {
   })
 }
 
-export const getWeixinMemberPhone = (encryptedData: string, iv: string, code: string) => {
-  return http.get<IPageData<MemberPhone>>('/getWeixinMemberPhone.json', {
-    appID: APPID,
-    encryptedData,
-    iv,
-    js_code: code,
+/** 静默登录 */
+export const openIDorUnionIDFastLogin = (openID: string) => {
+  return http.get<ILoginSession>('/openIDorUnionIDFastLogin.json', {
+    deviceID: DEVICEID,
+    siteID: SITEID,
+    openID,
   })
+}
+
+/** 查询城管身份 */
+export const getMyMemberMajorList = () => {
+  return http.get<IPageData<MemberMajor>>('/getMyMemberMajorList.json')
+}
+
+/** 查询所属公司 */
+export const getMyCompanyAndEmployeeList = () => {
+  return http.get('/getMyCompanyAndEmployeeList.json')
+}
+
+/** 会员信息 */
+export const getOneMemberDetail = () => {
+  return http.get<{ phone: string }>('/getOneMemberDetail.json')
 }
