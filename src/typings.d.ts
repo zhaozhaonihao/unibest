@@ -22,6 +22,11 @@ declare global {
     openid?: string
     token?: string
   }
+
+  type ILoginInfo = {
+    sessionID: string
+    memberID: string
+  }
 }
 
-export {} // 防止模块污染
+export { } // 防止模块污染

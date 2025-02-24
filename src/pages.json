@@ -39,6 +39,14 @@
   },
   "pages": [
     {
+      "path": "pages/index/index",
+      "type": "home",
+      "layout": "demo",
+      "style": {
+        "navigationBarTitleText": "首页"
+      }
+    },
+    {
       "path": "pages/home/index",
       "type": "home",
       "style": {
@@ -50,6 +58,14 @@
       "type": "page",
       "style": {
         "navigationBarTitleText": "关于"
+      }
+    },
+    {
+      "path": "pages/find/index",
+      "type": "find",
+      "layout": "default",
+      "style": {
+        "navigationBarTitleText": "搜索"
       }
     }
   ],
