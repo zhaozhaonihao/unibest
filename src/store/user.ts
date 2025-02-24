@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { getWeiXinAppOpenId } from '@/service/static/login'
 
 const initState = { nickname: '', avatar: '' }
 
@@ -7,6 +7,23 @@ export const useUserStore = defineStore(
   'user',
   () => {
     const userInfo = ref<IUserInfo>({ ...initState })
+    const openID = ref<string | undefined>()
+
+    const getOpenId = () => {
+      console.log('🐛', 'getOpenId')
+
+      if (!openID.value) {
+        uni.login({
+          provider: 'weixin',
+          success: async ({ code }) => {
+            const { run } = useRequest(() => getWeiXinAppOpenId(code))
+            const res = await run()
+            openID.value = res.openID
+            console.log('🐛', 'openID', openID.value)
+          },
+        })
+      }
+    }
 
     const setUserInfo = (val: IUserInfo) => {
       userInfo.value = val
@@ -22,6 +39,9 @@ export const useUserStore = defineStore(
     const isLogined = computed(() => !!userInfo.value.token)
 
     return {
+      openID,
+      getOpenId,
+
       userInfo,
       setUserInfo,
       clearUserInfo,
