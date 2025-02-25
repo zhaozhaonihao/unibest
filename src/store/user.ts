@@ -1,15 +1,23 @@
 import { defineStore } from 'pinia'
-import { getWeiXinAppOpenId } from '@/service/static/login'
+import {
+  EmployeeWithPhone,
+  type MemberMajor,
+  OneMemberDetail,
+  bandingEmployeeWithPhone,
+  type CompanyAndEmployee,
+  getMyCompanyAndEmployeeList,
+  getMyMemberMajorList,
+  getOneMemberDetail,
+  getWeiXinAppOpenId,
+  openIDorUnionIDFastLogin,
+} from '@/service/static/login'
 
-const initState = { nickname: '', avatar: '' }
-const ininLoginInfo = { sessionID: '', memberID: '' }
+import dayjs from 'dayjs'
 
 export const useUserStore = defineStore(
   'user',
   () => {
-    const userInfo = ref<IUserInfo>({ ...initState })
     const openID = ref<string | undefined>()
-
     const getOpenId = () => {
       if (!openID.value) {
         // #ifdef MP-WEIXIN
@@ -17,45 +25,93 @@ export const useUserStore = defineStore(
           provider: 'weixin',
           success: async ({ code }) => {
             const { run } = useRequest(() => getWeiXinAppOpenId(code))
-            const res = await run()
-            openID.value = res.openID
+            openID.value = (await run()).openID
           },
         })
         // #endif
         // #ifdef H5
         console.log('🐛 发起网络请求获取 openID ......')
-        openID.value = '123'
+        openID.value = 'oMtfx6zNY_ULesEzXWbFkI0iHELo'
         // #endif
+      }
+
+      return openID.value
+    }
+
+    const loginSession = ref<ILoginSession>()
+    const isLogined = computed(() => loginSession.value.memberID && loginSession.value.sessionID)
+    const isLoginExpired = computed(() => {
+      return !loginSession.value || dayjs().diff(loginSession.value.time, 'minute') > 60
+    })
+    const onLogin = async () => {
+      if (openID.value) {
+        // 静态登录
+        const { run: FastLogin } = useRequest(() => openIDorUnionIDFastLogin(openID.value))
+        loginSession.value = { ...(await FastLogin()), time: dayjs() }
+
+        // 城管身份 查询
+        await getMemberInfo()
+
+        if (isChengguan.value) {
+          await CompanyAndEmployee()
+        }
       }
     }
 
-    const setUserInfo = (val: IUserInfo) => {
-      userInfo.value = val
+    // 查询当前身份列表
+    const member = ref<MemberMajor[]>([])
+    const getMemberInfo = async () => {
+      const { run } = useRequest(() => getMyMemberMajorList())
+      member.value = (await run()).rows
+    }
+    const isChengguan = computed(() => {
+      return member.value.some((item) => item.majorID === MAJOR_ID_CHENGGUAN)
+    })
+
+    const CompanyAndEmployeeList = ref<CompanyAndEmployee>()
+    const CompanyAndEmployee = async () => {
+      const { run: MyCompany } = useRequest(() => getMyCompanyAndEmployeeList())
+      const EmployeeList = await MyCompany()
+
+      CompanyAndEmployeeList.value = EmployeeList[0]
+
+      if (!EmployeeList.length) {
+        await OneMember()
+        await BandingEmployee()
+      }
     }
 
-    const clearUserInfo = () => {
-      userInfo.value = { ...initState }
-    }
-    // 一般没有reset需求，不需要的可以删除
-    const reset = () => {
-      userInfo.value = { ...initState }
+    const OneMemberDetail = ref<OneMemberDetail>()
+    const OneMember = async () => {
+      const { run } = useRequest(() => getOneMemberDetail())
+      OneMemberDetail.value = await run()
     }
 
-    const isLogined = computed(() => !!userInfo.value.token)
-
-    // 登录信息
-    const loginInfo = ref<ILoginInfo>({ ...ininLoginInfo })
+    const Employee = ref<EmployeeWithPhone>()
+    const BandingEmployee = async () => {
+      const { run } = useRequest(() => bandingEmployeeWithPhone(OneMemberDetail.value?.phone))
+      Employee.value = await run()
+    }
 
     return {
       openID,
       getOpenId,
 
-      userInfo,
-      setUserInfo,
-      clearUserInfo,
+      loginSession,
+      isLoginExpired,
+      onLogin,
       isLogined,
-      reset,
-      loginInfo
+
+      member,
+      getMemberInfo,
+
+      OneMemberDetail,
+      OneMember,
+
+      isChengguan,
+
+      Employee,
+      CompanyAndEmployeeList,
     }
   },
   {

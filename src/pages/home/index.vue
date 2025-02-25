@@ -37,6 +37,9 @@
       @click="onNotice"
     />
 
+    <chengguan v-if="isChengguan" />
+    <view v-else>用户</view>
+
     <view class="flex flex-col gap-3 p-4 bg-white">
       <view class="flex justify-between">
         <view>
@@ -51,6 +54,7 @@
 
       <view v-for="article in newsArticleList" :key="article.articleID" class="flex flex-col gap-3">
         <Divider />
+
         <Article :article="article"></Article>
       </view>
     </view>
@@ -65,6 +69,13 @@ import {
 } from '@/service/static/index'
 import Divider from '@/components/Divider/index.vue'
 import Article from '@/components/Article/index.vue'
+import chengguan from './components/chengguan.vue'
+
+import { useUserStore } from '@/store'
+import { storeToRefs } from 'pinia'
+
+const userStore = useUserStore()
+const { isChengguan } = storeToRefs(userStore)
 
 // 轮播图
 const { data: PictureList } = useRequest(() => getFocusPictureList(), { immediate: true })

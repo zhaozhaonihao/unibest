@@ -1,4 +1,5 @@
 import { CustomRequestOptions } from '@/interceptors/request'
+import { useUserStore } from '@/store'
 
 export const http = <T>(options: CustomRequestOptions) => {
   // 1. 返回 Promise 对象
@@ -49,14 +50,19 @@ export const http = <T>(options: CustomRequestOptions) => {
           `\n--------------------------------------------------`,
         )
 
-        // if (header?.code === 10000) {
-        //   mineStore.onLogin()
-        // }
-
-        // 如果是成功的响应，resolve 返回结果，否则 reject 错误信息
-        isSuccess ? resolve(result) : reject(result)
+        // 如果后端返回 10000，表示需要重新登录
+        if (header?.code === 10000) {
+          // 调用 onLogin 获取新 token
+          useUserStore()
+            .onLogin()
+            // 重发请求
+            .then(() => http<T>(options))
+            .then((reResult) => resolve(reResult))
+            .catch((err) => reject(err))
+        } else {
+          isSuccess ? resolve(result) : reject(result)
+        }
       },
-      // 响应失败
       fail(err) {
         uni.showToast({
           icon: 'none',

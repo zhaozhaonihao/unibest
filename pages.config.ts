@@ -7,6 +7,7 @@ export default defineUniPages({
     navigationBarBackgroundColor: '#f8f8f8',
     navigationBarTextStyle: 'black',
     backgroundColor: '#FFFFFF',
+    enablePullDownRefresh: true,
   },
   easycom: {
     autoscan: true,
@@ -35,7 +36,7 @@ export default defineUniPages({
       {
         iconPath: 'static/tabbar/example.png',
         selectedIconPath: 'static/tabbar/exampleHL.png',
-        pagePath: 'pages/about/about',
+        pagePath: 'pages/mine/index',
         text: '我的',
       },
     ],

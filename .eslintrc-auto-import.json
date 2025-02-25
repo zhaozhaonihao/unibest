@@ -112,6 +112,7 @@
     "SEARCHDEFINEID": true,
     "SHOPID": true,
     "SITEID": true,
-    "WEIXINID": true
+    "WEIXINID": true,
+    "MAJOR_ID_CHENGGUAN": true
   }
 }

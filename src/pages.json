@@ -4,7 +4,8 @@
     "navigationBarTitleText": "unibest",
     "navigationBarBackgroundColor": "#f8f8f8",
     "navigationBarTextStyle": "black",
-    "backgroundColor": "#FFFFFF"
+    "backgroundColor": "#FFFFFF",
+    "enablePullDownRefresh": true
   },
   "easycom": {
     "autoscan": true,
@@ -32,25 +33,24 @@
       {
         "iconPath": "static/tabbar/example.png",
         "selectedIconPath": "static/tabbar/exampleHL.png",
-        "pagePath": "pages/about/about",
+        "pagePath": "pages/mine/index",
         "text": "我的"
       }
     ]
   },
   "pages": [
     {
-      "path": "pages/index/index",
+      "path": "pages/home/index",
       "type": "home",
-      "layout": "demo",
       "style": {
         "navigationBarTitleText": "首页"
       }
     },
     {
-      "path": "pages/home/index",
-      "type": "home",
+      "path": "pages/test",
+      "type": "page",
       "style": {
-        "navigationBarTitleText": "首页"
+        "navigationBarTitleText": "测试页面"
       }
     },
     {
@@ -66,6 +66,45 @@
       "layout": "default",
       "style": {
         "navigationBarTitleText": "搜索"
+      }
+    },
+    {
+      "path": "pages/inspection/dot",
+      "type": "page",
+      "style": {
+        "navigationBarTitleText": "巡视点位"
+      }
+    },
+    {
+      "path": "pages/inspection/index copy",
+      "type": "page",
+      "style": {
+        "navigationBarTitleText": "巡视"
+      }
+    },
+    {
+      "path": "pages/inspection/index",
+      "type": "page",
+      "style": {
+        "navigationBarTitleText": "巡视记录"
+      }
+    },
+    {
+      "path": "pages/login/index",
+      "type": "page"
+    },
+    {
+      "path": "pages/mine/index",
+      "type": "page",
+      "style": {
+        "navigationBarTitleText": "个人中心"
+      }
+    },
+    {
+      "path": "pages/mine/user_info/index",
+      "type": "page",
+      "style": {
+        "navigationBarTitleText": "个人信息"
       }
     }
   ],

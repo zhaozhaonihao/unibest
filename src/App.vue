@@ -1,23 +1,47 @@
 <script setup lang="ts">
 import { onLaunch, onShow, onHide } from '@dcloudio/uni-app'
 import 'abortcontroller-polyfill/dist/abortcontroller-polyfill-only'
+
 import { useUserStore } from '@/store'
-import { getWeiXinAppOpenId } from './service/static/login'
+
 const userStore = useUserStore()
 
-onLaunch(() => {
+onLaunch(async () => {
   console.log('App Launch')
-  userStore.getOpenId()
+
+  const openID = userStore.getOpenId()
+  console.log('🐛App: openID', openID)
+
+  if (userStore.isLoginExpired) {
+    console.log('🐛App: 登录过期')
+    await userStore.onLogin()
+  }
 })
+
 onShow(() => {
   console.log('App Show')
 })
+
 onHide(() => {
   console.log('App Hide')
 })
 </script>
 
 <style lang="scss">
+/* #ifdef H5 */
+
+uni-app,
+uni-page,
+uni-page-wrapper,
+uni-page-body {
+  height: 100%;
+}
+/* #endif */
+/* #ifdef MP-WEIXIN */
+page {
+  height: 100%;
+}
+/* #endif */
 // /* stylelint-disable selector-type-no-unknown */
 // button::after {
 //   border: none;
