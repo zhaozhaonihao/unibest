@@ -28,6 +28,20 @@ onHide(() => {
 </script>
 
 <style lang="scss">
+/* #ifdef H5 */
+
+uni-app,
+uni-page,
+uni-page-wrapper,
+uni-page-body {
+  height: 100%;
+}
+/* #endif */
+/* #ifdef MP-WEIXIN */
+page {
+  height: 100%;
+}
+/* #endif */
 // /* stylelint-disable selector-type-no-unknown */
 // button::after {
 //   border: none;

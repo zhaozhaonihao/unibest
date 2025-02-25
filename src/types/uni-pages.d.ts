@@ -7,6 +7,9 @@ interface NavigateToOptions {
   url: "/pages/home/index" |
        "/pages/test" |
        "/pages/about/about" |
+       "/pages/inspection/dot" |
+       "/pages/inspection/index copy" |
+       "/pages/inspection/index" |
        "/pages/login/index" |
        "/pages/mine/index";
 }

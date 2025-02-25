@@ -1,9 +1,5 @@
 import { http } from '@/utils/http'
 
-export type MemberMajor = {
-  majorID: string
-}
-
 /** 登录授权页面 获取手机号 */
 export const getWeixinMemberPhone = (encryptedData: string, iv: string, code: string) => {
   return http.get<IPageData<{ phoneNumber: string }>>('/getWeixinMemberPhone.json', {
@@ -31,17 +27,37 @@ export const openIDorUnionIDFastLogin = (openID: string) => {
   })
 }
 
+export type MemberMajor = {
+  majorID: string
+}
 /** 查询城管身份 */
 export const getMyMemberMajorList = () => {
   return http.get<IPageData<MemberMajor>>('/getMyMemberMajorList.json')
 }
 
+export interface CompanyAndEmployee {
+  employeeID: string
+}
 /** 查询所属公司 */
 export const getMyCompanyAndEmployeeList = () => {
-  return http.get('/getMyCompanyAndEmployeeList.json')
+  return http.get<CompanyAndEmployee[]>('/getMyCompanyAndEmployeeList.json', {
+    companyID: COMPANYID,
+  })
 }
 
+export interface OneMemberDetail {
+  phone: string
+  avatarURL: string
+  propertyID: string
+}
 /** 会员信息 */
 export const getOneMemberDetail = () => {
-  return http.get<{ phone: string }>('/getOneMemberDetail.json')
+  return http.get<OneMemberDetail>('/getOneMemberDetail.json')
+}
+
+export interface EmployeeWithPhone {
+  employeeID: string
+}
+export const bandingEmployeeWithPhone = (phone: string) => {
+  return http.get<EmployeeWithPhone>('/bandingEmployeeWithPhone.json', { phone })
 }

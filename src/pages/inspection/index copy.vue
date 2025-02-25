@@ -1,7 +1,7 @@
 <route lang="json5">
 {
   style: {
-    navigationBarTitleText: '测试页面',
+    navigationBarTitleText: '巡视',
   },
 }
 </route>
@@ -15,9 +15,10 @@
       </view>
     </view>
     <view class="flex-1"></view>
-    <wd-button custom-class="w-full mt-auto!" block>开始巡视</wd-button>
+    <wd-button custom-class="w-full mt-auto!" size="large" block>开始巡视</wd-button>
   </view>
-  <wd-gap safe-area-bottom height="0"></wd-gap>
+
+  <wd-gap safe-area-bottom></wd-gap>
 </template>
 
 <script setup lang="ts">
@@ -27,10 +28,10 @@ const list = computed(() => {
   return [{ title: 'A出口' }, { title: 'B出口' }, { title: 'C出口' }, { title: '泗泾大润发停车场' }]
 })
 
-const { data } = useRequest(() => getRouteInstanceList('bc10dcf9302c4038952973e7729c6b69'), {
+const routeDefineID = ref('bc10dcf9302c4038952973e7729c6b69')
+const { data: InstanceList } = useRequest(() => getRouteInstanceList(routeDefineID.value), {
   immediate: true,
 })
-console.log(data)
-
+console.log('InstanceList:', InstanceList.value)
 // const noticeArticleList = computed(() => NoticeArticleList.value?.rows.map((i) => i.title))
 </script>

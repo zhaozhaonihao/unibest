@@ -1,6 +1,6 @@
 <template>
-  <wd-config-provider :themeVars="themeVars">
-    <view :style="pageStyle">
+  <wd-config-provider :themeVars="themeVars" custom-class="h-full">
+    <view class="p-4 bg-[#f5f5f5] h-[calc(100%-2rem)]">
       <slot />
     </view>
     <wd-toast />
@@ -11,11 +11,7 @@
 <script lang="ts" setup>
 import type { ConfigProviderThemeVars } from 'wot-design-uni'
 
-const themeVars: ConfigProviderThemeVars = {
-  // colorTheme: 'red',
-  // buttonPrimaryBgColor: '#07c160',
-  // buttonPrimaryColor: '#07c160',
-}
+const themeVars: ConfigProviderThemeVars = {}
 
 const { safeAreaInsets, windowHeight } = uni.getSystemInfoSync()
 
@@ -24,7 +20,8 @@ const pageStyle = computed(() => {
     padding: '1rem',
     'background-color': '#f5f5f5',
     // minHeight: windowHeight + 'px',
-    minHeight: `calc(${windowHeight}px - 2rem)`,
+    // minHeight: `calc(${windowHeight}px - 2rem)`,
+    height: `calc(100% - 2rem)`,
   }
 })
 

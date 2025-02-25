@@ -19,13 +19,13 @@ const httpInterceptor = {
   invoke(options: CustomRequestOptions) {
     // 处理query参数
     const userStore = useUserStore()
-    const loginInfo = userStore.loginInfo as ILoginSession | undefined
+    const loginSession = userStore.loginSession as ILoginSession | undefined
 
     // 附加登录信息到 query 中（如果存在）
-    if (loginInfo?.sessionID && loginInfo?.memberID) {
+    if (loginSession?.sessionID && loginSession?.memberID) {
       options.query = {
-        sessionID: loginInfo.sessionID,
-        memberID: loginInfo.memberID,
+        sessionID: loginSession.sessionID,
+        memberID: loginSession.memberID,
         ...options.query,
       }
     }

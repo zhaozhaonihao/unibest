@@ -1,6 +1,11 @@
 import { defineStore } from 'pinia'
 import {
+  EmployeeWithPhone,
   type MemberMajor,
+  OneMemberDetail,
+  bandingEmployeeWithPhone,
+  type CompanyAndEmployee,
+  getMyCompanyAndEmployeeList,
   getMyMemberMajorList,
   getOneMemberDetail,
   getWeiXinAppOpenId,
@@ -20,8 +25,7 @@ export const useUserStore = defineStore(
           provider: 'weixin',
           success: async ({ code }) => {
             const { run } = useRequest(() => getWeiXinAppOpenId(code))
-            const res = await run()
-            openID.value = res.openID
+            openID.value = (await run()).openID
           },
         })
         // #endif
@@ -34,43 +38,66 @@ export const useUserStore = defineStore(
       return openID.value
     }
 
-    const loginInfo = ref<ILoginSession>()
+    const loginSession = ref<ILoginSession>()
+    const isLogined = computed(() => loginSession.value.memberID && loginSession.value.sessionID)
     const isLoginExpired = computed(() => {
-      return !loginInfo.value || dayjs().diff(loginInfo.value.time, 'minute') > 60
+      return !loginSession.value || dayjs().diff(loginSession.value.time, 'minute') > 60
     })
     const onLogin = async () => {
       if (openID.value) {
-        const { run } = useRequest(() => openIDorUnionIDFastLogin(openID.value))
-        const res = await run()
-        loginInfo.value = { ...res, time: dayjs() }
-        getMemberInfo()
+        // 静态登录
+        const { run: FastLogin } = useRequest(() => openIDorUnionIDFastLogin(openID.value))
+        loginSession.value = { ...(await FastLogin()), time: dayjs() }
+
+        // 城管身份 查询
+        await getMemberInfo()
+
+        if (isChengguan.value) {
+          await CompanyAndEmployee()
+        }
       }
     }
-    const isLogined = computed(() => loginInfo.value.memberID && loginInfo.value.sessionID)
 
+    // 查询当前身份列表
     const member = ref<MemberMajor[]>([])
     const getMemberInfo = async () => {
       const { run } = useRequest(() => getMyMemberMajorList())
-      const res = await run()
-      member.value = res.rows
+      member.value = (await run()).rows
     }
-
-    const memberDetail = ref()
-    const getOnmberDetail = async () => {
-      const { run } = useRequest(() => getOneMemberDetail())
-      const res = await run()
-      console.log('getOneMemberDetail', res)
-    }
-
     const isChengguan = computed(() => {
       return member.value.some((item) => item.majorID === MAJOR_ID_CHENGGUAN)
     })
+
+    const CompanyAndEmployeeList = ref<CompanyAndEmployee>()
+    const CompanyAndEmployee = async () => {
+      const { run: MyCompany } = useRequest(() => getMyCompanyAndEmployeeList())
+      const EmployeeList = await MyCompany()
+
+      CompanyAndEmployeeList.value = EmployeeList[0]
+
+      if (!EmployeeList.length) {
+        await OneMember()
+        await BandingEmployee()
+      }
+    }
+
+    const OneMemberDetail = ref<OneMemberDetail>()
+    const OneMember = async () => {
+      const { run } = useRequest(() => getOneMemberDetail())
+      OneMemberDetail.value = await run()
+    }
+
+    const Employee = ref<EmployeeWithPhone>()
+    const BandingEmployee = async () => {
+      const { run } = useRequest(() => bandingEmployeeWithPhone(OneMemberDetail.value?.phone))
+      Employee.value = await run()
+    }
 
     return {
       openID,
       getOpenId,
 
-      loginInfo,
+      loginSession,
       isLoginExpired,
       onLogin,
       isLogined,
@@ -78,9 +105,13 @@ export const useUserStore = defineStore(
       member,
       getMemberInfo,
 
-      getOnmberDetail,
+      OneMemberDetail,
+      OneMember,
 
       isChengguan,
+
+      Employee,
+      CompanyAndEmployeeList,
     }
   },
   {
