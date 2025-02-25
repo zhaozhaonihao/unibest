@@ -6,6 +6,16 @@ declare global {
     header: { code: number; msg: string }
   }
 
+  interface IPageData<T> {
+    total: number
+    currentPage: number
+    currentPgeNumber: number
+    pageNumber: number
+    totalPage: number
+    hasNextPage: boolean
+    rows: T[]
+  }
+
   // uni.uploadFile文件上传参数
   type IUniUploadFileOptions = {
     file?: File
@@ -29,4 +39,5 @@ declare global {
   }
 }
 
-export { } // 防止模块污染
+/* eslint-disable */
+export { }
