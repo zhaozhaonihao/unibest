@@ -14,11 +14,13 @@ textarea {
   margin: 0;
   font-family: system-ui, sans-serif;
 }
+
 /* 2️⃣ 确保 `text` 继承颜色和字体大小 */
 text {
   font-size: inherit;
   color: inherit;
 }
+
 /* 3️⃣ `button` 样式清除，避免默认样式 */
 button {
   padding: 0;
@@ -27,12 +29,14 @@ button {
   border: none;
   outline: none;
 }
+
 /* 4️⃣ `image` 默认充满容器 */
 image {
   display: block;
   max-width: 100%;
   height: auto;
 }
+
 /* 5️⃣ `input` 和 `textarea` 样式清除 */
 input,
 textarea {
@@ -43,10 +47,12 @@ textarea {
   border: none;
   outline: none;
 }
+
 /* 6️⃣ iOS 设备禁止自动调整字体大小 */
 page {
   -webkit-text-size-adjust: 100%;
 }
+
 /* 7️⃣ `h1` - `h6` 继承字体大小和粗细 */
 h1,
 h2,
@@ -59,17 +65,20 @@ h6 {
   font-size: inherit;
   font-weight: inherit;
 }
+
 /* 8️⃣ `navigator` 去掉默认下划线 */
 navigator {
   color: inherit;
   text-decoration: none;
 }
+
 /* 9️⃣ `table` 统一样式 */
 table {
   width: 100%;
   border-spacing: 0;
   border-collapse: collapse;
 }
+
 /* 🔟 `ul` 和 `ol` 去掉默认 `list-style` */
 ul,
 ol {
@@ -77,14 +86,17 @@ ol {
   margin: 0;
   list-style: none;
 }
+
 /* 11️⃣ 禁止 `textarea` 允许水平调整 */
 textarea {
   resize: vertical;
 }
+
 /* 12️⃣ `progress` 兼容微信小程序 */
 progress {
   vertical-align: baseline;
 }
+
 /* 13️⃣ `fieldset`、`legend`、`blockquote` 没有默认间距 */
 fieldset,
 legend,
@@ -93,6 +105,7 @@ blockquote {
   margin: 0;
   border: none;
 }
+
 /* 14️⃣ `img`、`video` 充满容器 */
 image,
 video {
@@ -100,24 +113,29 @@ video {
   max-width: 100%;
   height: auto;
 }
+
 /* 15️⃣ `hr` 统一样式 */
 hr {
   margin: 16px 0;
   border: none;
   border-top: 1px solid #e5e7eb;
 }
+
 /* 16️⃣ `summary` 在微信小程序可用 */
 summary {
   display: list-item;
 }
+
 /* 17️⃣ 让 `button:disabled` 禁用指针事件 */
 button:disabled {
   cursor: default;
 }
+
 /* 18️⃣ `hidden` 仍然隐藏 */
 [hidden] {
   display: none;
 }
+
 /* 19️⃣ 解决 iOS 下 `input` 聚焦后字体变大问题 */
 input,
 textarea {
@@ -125,10 +143,12 @@ textarea {
   -moz-appearance: none;
   appearance: none;
 }
+
 /* 20️⃣ 让 `scroll-view` 滚动流畅 */
 scroll-view {
   -webkit-overflow-scrolling: touch;
 }
+
 /* 21️⃣ 统一 `wx-checkbox` 和 `wx-radio` 的样式 */
 checkbox,
 radio {
@@ -137,11 +157,13 @@ radio {
   border: none;
   outline: none;
 }
+
 /* 22️⃣ 让 `swiper` 组件正常显示 */
 swiper,
 swiper-item {
   display: block;
 }
+
 /* 23️⃣ 让 `cover-view`、`cover-image` 可继承字体 */
 cover-view,
 cover-image {
