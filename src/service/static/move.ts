@@ -1,10 +1,10 @@
 import { http } from '@/utils/http'
 
-export type ParkArea = {
+export interface ParkArea {
   name: string
 }
 
-export const getParkAreaList = (phone: string) => {
+export function getParkAreaList(phone: string) {
   return http.get<IPageData<ParkArea>>('/getParkAreaList.json', {
     phone,
   })

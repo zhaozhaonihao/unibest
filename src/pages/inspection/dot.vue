@@ -5,23 +5,18 @@
   },
 }
 </route>
-<template>
-  <view>
-    巡视点位
-
-    <view>{{ InstanceList.length }}</view>
-  </view>
-</template>
 
 <script setup lang="ts">
 import { useUserStore } from '@/store'
-import { getRouteInstanceDotList } from '@/service/static/inspection'
 
 const userStore = useUserStore()
 
 onLoad(async ({ routeDefineID }) => {
   console.log(routeDefineID)
   console.log(userStore)
+  // routeDefineID
+  // routeDefineDotID
+  // routeInstanceID
 
   //   const { run } = useRequest(() => getRouteInstanceDotList(routeDefineID))
 
@@ -31,3 +26,11 @@ const InstanceList = ref([])
 
 console.log('InstanceList', InstanceList.value)
 </script>
+
+<template>
+  <view>
+    巡视点位
+
+    <view>{{ InstanceList.length }}</view>
+  </view>
+</template>

@@ -4,7 +4,7 @@ import { createPersistedState } from 'pinia-plugin-persistedstate' // 数据持�
 const store = createPinia()
 store.use(
   createPersistedState({
-    key: (id) => `${import.meta.env.VITE_APP_TITLE}__${id}`,
+    key: id => `${import.meta.env.VITE_APP_TITLE}__${id}`,
 
     storage: {
       getItem: uni.getStorageSync,

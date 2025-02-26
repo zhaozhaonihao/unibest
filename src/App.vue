@@ -1,19 +1,16 @@
 <script setup lang="ts">
-import { onLaunch, onShow, onHide } from '@dcloudio/uni-app'
-import 'abortcontroller-polyfill/dist/abortcontroller-polyfill-only'
-
 import { useUserStore } from '@/store'
+import { onHide, onLaunch, onShow } from '@dcloudio/uni-app'
 
-const userStore = useUserStore()
+import 'abortcontroller-polyfill/dist/abortcontroller-polyfill-only'
 
 onLaunch(async () => {
   console.log('App Launch')
 
-  const openID = userStore.getOpenId()
-  console.log('🐛App: openID', openID)
+  const userStore = useUserStore()
+  userStore.getOpenId()
 
   if (userStore.isLoginExpired) {
-    console.log('🐛App: 登录过期')
     await userStore.onLogin()
   }
 })
@@ -28,17 +25,17 @@ onHide(() => {
 </script>
 
 <style lang="scss">
-/* #ifdef H5 */
+/* #ifdef MP-WEIXIN */
+page {
+  height: 100%;
+}
+/* #endif */
 
+/* #ifdef H5 */
 uni-app,
 uni-page,
 uni-page-wrapper,
 uni-page-body {
-  height: 100%;
-}
-/* #endif */
-/* #ifdef MP-WEIXIN */
-page {
   height: 100%;
 }
 /* #endif */

@@ -1,15 +1,3 @@
-<template>
-  <view class="flex items-center gap-3 p-3 h-25 bg-white rounded-2">
-    <wd-img :src="article.faceImage" :width="80" :height="80" class="shrink-0 rounded-2" />
-
-    <view class="flex-1 flex flex-col justify-between h-full overflow-hidden">
-      <view class="title text-4 font-bold">{{ article.title }}</view>
-      <view class="desc lh-normal text-3 text-[#666]">{{ article.description }}</view>
-      <view class="shrink-0 text-3 text-right text-[#999]">{{ article.createdTimeStr }}</view>
-    </view>
-  </view>
-</template>
-
 <script setup lang="ts">
 import type { News } from '@/service/static'
 
@@ -17,6 +5,24 @@ const { article } = defineProps<{
   article: News
 }>()
 </script>
+
+<template>
+  <view class="flex items-center gap-3 p-3 h-25 bg-white rounded-2">
+    <wd-img :src="article.faceImage" :width="80" :height="80" class="shrink-0 rounded-2" />
+
+    <view class="flex-1 flex flex-col justify-between h-full overflow-hidden">
+      <view class="title text-4 font-bold">
+        {{ article.title }}
+      </view>
+      <view class="desc lh-normal text-3 text-[#666]">
+        {{ article.description }}
+      </view>
+      <view class="shrink-0 text-3 text-right text-[#999]">
+        {{ article.createdTimeStr }}
+      </view>
+    </view>
+  </view>
+</template>
 
 <style scoped lang="scss">
 .title {

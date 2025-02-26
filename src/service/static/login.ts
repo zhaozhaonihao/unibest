@@ -1,7 +1,7 @@
 import { http } from '@/utils/http'
 
 /** 登录授权页面 获取手机号 */
-export const getWeixinMemberPhone = (encryptedData: string, iv: string, code: string) => {
+export function getWeixinMemberPhone(encryptedData: string, iv: string, code: string) {
   return http.get<IPageData<{ phoneNumber: string }>>('/getWeixinMemberPhone.json', {
     appID: APPID,
     encryptedData,
@@ -11,7 +11,7 @@ export const getWeixinMemberPhone = (encryptedData: string, iv: string, code: st
 }
 
 /** 获取openID */
-export const getWeiXinAppOpenId = (code: string) => {
+export function getWeiXinAppOpenId(code: string) {
   return http.get<{ openID: string }>('/getWeiXinAppOpenId.json', {
     publicNo: PUBLICNO,
     js_code: code,
@@ -19,7 +19,7 @@ export const getWeiXinAppOpenId = (code: string) => {
 }
 
 /** 静默登录 */
-export const openIDorUnionIDFastLogin = (openID: string) => {
+export function openIDorUnionIDFastLogin(openID: string) {
   return http.get<ILoginSession>('/openIDorUnionIDFastLogin.json', {
     deviceID: DEVICEID,
     siteID: SITEID,
@@ -27,11 +27,11 @@ export const openIDorUnionIDFastLogin = (openID: string) => {
   })
 }
 
-export type MemberMajor = {
+export interface MemberMajor {
   majorID: string
 }
-/** 查询城管身份 */
-export const getMyMemberMajorList = () => {
+/** 获取身份 */
+export function getMyMemberMajorList() {
   return http.get<IPageData<MemberMajor>>('/getMyMemberMajorList.json')
 }
 
@@ -39,7 +39,7 @@ export interface CompanyAndEmployee {
   employeeID: string
 }
 /** 查询所属公司 */
-export const getMyCompanyAndEmployeeList = () => {
+export function getMyCompanyAndEmployeeList() {
   return http.get<CompanyAndEmployee[]>('/getMyCompanyAndEmployeeList.json', {
     companyID: COMPANYID,
   })
@@ -51,13 +51,13 @@ export interface OneMemberDetail {
   propertyID: string
 }
 /** 会员信息 */
-export const getOneMemberDetail = () => {
+export function getOneMemberDetail() {
   return http.get<OneMemberDetail>('/getOneMemberDetail.json')
 }
 
 export interface EmployeeWithPhone {
   employeeID: string
 }
-export const bandingEmployeeWithPhone = (phone: string) => {
+export function bandingEmployeeWithPhone(phone: string) {
   return http.get<EmployeeWithPhone>('/bandingEmployeeWithPhone.json', { phone })
 }

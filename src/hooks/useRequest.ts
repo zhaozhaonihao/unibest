@@ -1,6 +1,6 @@
-import { UnwrapRef } from 'vue'
+import type { UnwrapRef } from 'vue'
 
-type IUseRequestOptions<T> = {
+interface IUseRequestOptions<T> {
   /** 是否立即执行 */
   immediate?: boolean
   /** 初始化数据 */
@@ -30,10 +30,12 @@ export default function useRequest<T>(
       data.value = res as UnwrapRef<T>
       error.value = false
       return data.value
-    } catch (err) {
+    }
+    catch (err) {
       error.value = err
       throw err
-    } finally {
+    }
+    finally {
       loading.value = false
     }
   }

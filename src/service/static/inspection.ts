@@ -1,22 +1,38 @@
 import { http } from '@/utils/http'
 import dayjs from 'dayjs'
-import { useUserStore } from '@/store'
 
-export type RouteDefine = {
+export interface RouteDefine {
   routeDefineID: string
   name: string
 }
 
-export const getRouteInstanceList = (routeDefineID: string) => {
-  return http.get<IPageData<{ phoneNumber: string }>>('/getRouteInstanceList.json', {
+export interface RouteInstance {
+  routeInstanceID: string
+  /** 关联的路线名称 */
+  routeDefineName: string
+  /** 巡视实例名称 */
+  name: string
+  /** 巡视实例简称 */
+  shortName: string
+
+  employeeName: string
+
+  planBeginTime: string
+  planEndTime: string
+  realBeginTime: string
+  realEndTime: string
+}
+export function getRouteInstanceList(routeDefineID: string, employeeID: string) {
+  return http.get<IPageData<RouteInstance>>('/getRouteInstanceList.json', {
     routeDefineID,
+    employeeID,
   })
 }
 
 /** 获取路线定义列表 */
 export const getRouteDefineList = () => http.get<IPageData<RouteDefine>>('/getRouteDefineList.json')
 
-export const createOneRouteInstance = (routeDefineID: string, employeeID: string, name: string) => {
+export function createOneRouteInstance(routeDefineID: string, employeeID: string, name: string) {
   return http.get('/createOneRouteInstance.json', {
     routeDefineID,
     name,
@@ -25,7 +41,7 @@ export const createOneRouteInstance = (routeDefineID: string, employeeID: string
   })
 }
 
-export const getRouteInstanceDotList = (routeDefineID: string) => {
+export function getRouteInstanceDotList(routeDefineID: string) {
   return http.get('/getRouteInstanceDotList.json', {
     routeDefineID,
   })

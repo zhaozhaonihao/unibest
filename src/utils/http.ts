@@ -1,7 +1,7 @@
-import { CustomRequestOptions } from '@/interceptors/request'
+import type { CustomRequestOptions } from '@/interceptors/request'
 import { useUserStore } from '@/store'
 
-export const http = <T>(options: CustomRequestOptions) => {
+export function http<T>(options: CustomRequestOptions) {
   // 1. 返回 Promise 对象
   return new Promise<IResData<T>>((resolve, reject) => {
     uni.request({
@@ -57,9 +57,10 @@ export const http = <T>(options: CustomRequestOptions) => {
             .onLogin()
             // 重发请求
             .then(() => http<T>(options))
-            .then((reResult) => resolve(reResult))
-            .catch((err) => reject(err))
-        } else {
+            .then(reResult => resolve(reResult))
+            .catch(err => reject(err))
+        }
+        else {
           isSuccess ? resolve(result) : reject(result)
         }
       },
@@ -78,9 +79,9 @@ export const http = <T>(options: CustomRequestOptions) => {
  * GET 请求
  * @param url 后台地址
  * @param query 请求query参数
- * @returns
+ * @returns 包含响应数据的 Promise 对象
  */
-export const httpGet = <T>(url: string, query?: Record<string, any>) => {
+export function httpGet<T>(url: string, query?: Record<string, any>) {
   return http<T>({
     url,
     query,
@@ -93,13 +94,9 @@ export const httpGet = <T>(url: string, query?: Record<string, any>) => {
  * @param url 后台地址
  * @param data 请求body参数
  * @param query 请求query参数，post请求也支持query，很多微信接口都需要
- * @returns
+ * @returns 包含响应数据的 Promise 对象
  */
-export const httpPost = <T>(
-  url: string,
-  data?: Record<string, any>,
-  query?: Record<string, any>,
-) => {
+export function httpPost<T>(url: string, data?: Record<string, any>, query?: Record<string, any>) {
   return http<T>({
     url,
     query,
