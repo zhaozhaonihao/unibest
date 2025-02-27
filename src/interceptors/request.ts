@@ -24,7 +24,6 @@ const httpInterceptor = {
     if (loginSession?.sessionID && loginSession?.memberID) {
       options.query = {
         sessionID: loginSession.sessionID,
-        memberID: loginSession.memberID,
         ...options.query,
       }
     }
