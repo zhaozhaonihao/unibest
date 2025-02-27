@@ -3,9 +3,7 @@
     "navigationStyle": "default",
     "navigationBarTitleText": "unibest",
     "navigationBarBackgroundColor": "#f8f8f8",
-    "navigationBarTextStyle": "black",
-    "backgroundColor": "#FFFFFF",
-    "enablePullDownRefresh": true
+    "navigationBarTextStyle": "black"
   },
   "easycom": {
     "autoscan": true,
@@ -49,26 +47,77 @@
     {
       "path": "pages/test",
       "type": "page",
+      "layout": "default",
       "style": {
-        "navigationBarTitleText": "测试页面"
+        "navigationBarTitleText": "拍照",
+        "mp-weixin": {
+          "pageOrientation": "landscape"
+        }
       }
     },
     {
-      "path": "pages/about/about",
+      "path": "pages/inspection/dot",
       "type": "page",
       "style": {
-        "navigationBarTitleText": "关于"
+        "navigationBarTitleText": "巡视点位"
+      }
+    },
+    {
+      "path": "pages/inspection/index copy",
+      "type": "page",
+      "style": {
+        "navigationBarTitleText": "巡视"
+      }
+    },
+    {
+      "path": "pages/inspection/index",
+      "type": "page",
+      "style": {
+        "navigationBarTitleText": "巡视列表"
+      }
+    },
+    {
+      "path": "pages/inspection/instanceList",
+      "type": "page",
+      "style": {
+        "navigationBarTitleText": "巡视列表"
       }
     },
     {
       "path": "pages/login/index",
-      "type": "page"
+      "type": "page",
+      "style": {
+        "navigationBarTitleText": "授权登录"
+      }
     },
     {
       "path": "pages/mine/index",
       "type": "page",
       "style": {
         "navigationBarTitleText": "个人中心"
+      }
+    },
+    {
+      "path": "pages/move/add",
+      "type": "page",
+      "layout": "default",
+      "style": {
+        "navigationBarTitleText": "巡检路线"
+      }
+    },
+    {
+      "path": "pages/move/index",
+      "type": "page",
+      "style": {
+        "navigationBarTitleText": "挪车"
+      }
+    },
+    {
+      "path": "pages/move/take",
+      "type": "page",
+      "layout": "default",
+      "style": {
+        "navigationBarTitleText": "拍照"
       }
     }
   ],
