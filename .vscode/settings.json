@@ -1,62 +1,42 @@
 {
-  // 默认格式化工具选择prettier
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  // 保存的时候自动格式化
+  "terminal.integrated.minimumContrastRatio": 1,
+  "terminal.integrated.fontFamily": "Cascadia Code, Consolas, 'Courier New', monospace",
+  "terminal.integrated.shellIntegration.enabled": true,
+  // ✅ 保存时自动格式化（使用 ESLint）
   "editor.formatOnSave": true,
-  //开启自动修复
+  // ✅ 开启自动修复（仅保留 ESLint）
   "editor.codeActionsOnSave": {
-    "source.fixAll": "explicit",
-    "source.fixAll.eslint": "explicit",
-    "source.fixAll.stylelint": "explicit"
+    "source.fixAll": "explicit", // 允许代码修复
+    "source.fixAll.eslint": "explicit" // 只允许 ESLint 自动修复
   },
-  // 配置stylelint检查的文件类型范围
-  "stylelint.validate": ["css", "scss", "vue", "html"], // 与package.json的scripts对应
-  "stylelint.enable": true,
-  "css.validate": false,
-  "less.validate": false,
-  "scss.validate": false,
-  "[shellscript]": {
-    "editor.defaultFormatter": "foxundermoon.shell-format"
-  },
-  "[dotenv]": {
-    "editor.defaultFormatter": "foxundermoon.shell-format"
-  },
-  "[vue]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  "[typescript]": {
-    "editor.defaultFormatter": "vscode.typescript-language-features"
-  },
-  "[jsonc]": {
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
-  },
-  // 配置语言的文件关联
+  // // ✅ 关闭 VS Code 内置的 CSS / SCSS / LESS 语法检查，避免与 ESLint 冲突
+  // "css.validate": false,
+  // "less.validate": false,
+  // "scss.validate": false,
+  // // ✅ Shell 脚本格式化工具（用于 `.sh`、`.env` 文件）
+  // "[shellscript]": {
+  //   "editor.defaultFormatter": "foxundermoon.shell-format" // 使用 `shell-format` 作为默认格式化工具
+  // },
+  // "[dotenv]": {
+  //   "editor.defaultFormatter": "foxundermoon.shell-format" // `.env` 文件也使用 `shell-format`
+  // },
+  // // ✅ TypeScript 文件的默认格式化工具
+  // "[typescript]": {
+  //   "editor.defaultFormatter": "vscode.typescript-language-features" // 使用 VS Code 内置 TypeScript 语言服务格式化
+  // },
+  // // ✅ JSONC（带注释的 JSON 文件）使用 VS Code 默认格式化
+  // "[jsonc]": {
+  //   "editor.defaultFormatter": "esbenp.prettier-vscode" // ⚠️ 你已去掉 Prettier，建议改用 `vscode.json-language-features`
+  // },
+  // ✅ 语言文件的关联配置
   "files.associations": {
-    "pages.json": "jsonc", // pages.json 可以写注释
-    "manifest.json": "jsonc" // manifest.json 可以写注释
+    "pages.json": "jsonc", // 让 VS Code 解析 `pages.json` 为 JSONC（支持注释）
+    "manifest.json": "jsonc" // 让 `manifest.json` 也支持注释
   },
-  "cSpell.words": [
-    "Aplipay",
-    "climblee",
-    "commitlint",
-    "dcloudio",
-    "iconfont",
-    "qrcode",
-    "refresherrefresh",
-    "scrolltolower",
-    "tabbar",
-    "Toutiao",
-    "unibest",
-    "uvui",
-    "Wechat",
-    "WechatMiniprogram",
-    "Weixin"
-  ],
+  // ✅ TypeScript 语言服务路径（让 VS Code 使用项目中的 TypeScript 版本）
   "typescript.tsdk": "node_modules\\typescript\\lib",
-  "explorer.fileNesting.enabled": true,
-  "explorer.fileNesting.expand": false,
+  // ✅ 资源管理器文件嵌套规则（优化 VS Code 侧边栏文件显示）
   "explorer.fileNesting.patterns": {
-    "package.json": "pnpm-lock.yaml,pnpm-workspace.yaml,LICENSE,.gitattributes,.gitignore,.gitpod.yml,CNAME,.npmrc,.browserslistrc",
-    ".eslintrc.cjs": ".eslintignore,.prettierignore,.stylelintignore,.commitlintrc.*,.prettierrc.*,.stylelintrc.*,.eslintrc-auto-import.json,.editorconfig,.commitlint.cjs"
+    "pages.config.ts": "manifest.config.ts" // `manifest.config.ts` 嵌套在 `pages.config.ts` 下面
   }
 }

@@ -10,7 +10,7 @@ import { needLoginPages as _needLoginPages, getNeedLoginPages } from '@/utils'
 // TODO Check
 const loginRoute = '/pages/login/index'
 
-const isLogined = () => {
+function isLogined() {
   const userStore = useUserStore()
   return userStore.isLogined
 }
@@ -27,7 +27,8 @@ const navigateToInterceptor = {
     // 为了防止开发时出现BUG，这里每次都获取一下。生产环境可以移到函数外，性能更好
     if (isDev) {
       needLoginPages = getNeedLoginPages()
-    } else {
+    }
+    else {
       needLoginPages = _needLoginPages
     }
     const isNeedLogin = needLoginPages.includes(path)

@@ -1,10 +1,13 @@
+import type { Preset } from 'unocss'
+import process from 'node:process'
+
 // uno.config.ts
 import {
-  type Preset,
   defineConfig,
-  presetUno,
+
   presetAttributify,
   presetIcons,
+  presetUno,
   transformerDirectives,
   transformerVariantGroup,
 } from 'unocss'
@@ -20,7 +23,8 @@ const presets: Preset[] = []
 if (isMp) {
   // 使用小程序预设
   presets.push(presetApplet(), presetRemRpx())
-} else {
+}
+else {
   presets.push(
     // 非小程序用官方预设
     presetUno(),
@@ -36,7 +40,7 @@ export default defineConfig({
       scale: 1.2,
       warn: true,
       extraProperties: {
-        display: 'inline-block',
+        'display': 'inline-block',
         'vertical-align': 'middle',
       },
     }),
@@ -67,13 +71,7 @@ export default defineConfig({
     }),
   ],
   rules: [
-    [
-      'p-safe',
-      {
-        padding:
-          'env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)',
-      },
-    ],
+    ['p-safe', { padding: 'env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)' }],
     ['pt-safe', { 'padding-top': 'env(safe-area-inset-top)' }],
     ['pb-safe', { 'padding-bottom': 'env(safe-area-inset-bottom)' }],
   ],

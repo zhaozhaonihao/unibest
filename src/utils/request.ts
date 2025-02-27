@@ -1,11 +1,11 @@
-import { CustomRequestOptions } from '@/interceptors/request'
+import type { CustomRequestOptions } from '@/interceptors/request'
 
 /**
  * 请求方法: 主要是对 uni.request 的封装，去适配 openapi-ts-request 的 request 方法
  * @param options 请求参数
  * @returns 返回 Promise 对象
  */
-const http = <T>(options: CustomRequestOptions) => {
+function http<T>(options: CustomRequestOptions) {
   // 1. 返回 Promise 对象
   return new Promise<T>((resolve, reject) => {
     uni.request({

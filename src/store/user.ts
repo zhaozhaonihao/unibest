@@ -1,18 +1,17 @@
-import { defineStore } from 'pinia'
 import {
-  EmployeeWithPhone,
-  type MemberMajor,
-  OneMemberDetail,
   bandingEmployeeWithPhone,
-  type CompanyAndEmployee,
+
   getMyCompanyAndEmployeeList,
   getMyMemberMajorList,
   getOneMemberDetail,
   getWeiXinAppOpenId,
+
   openIDorUnionIDFastLogin,
 } from '@/service/static/login'
 
 import dayjs from 'dayjs'
+
+import { defineStore } from 'pinia'
 
 export const useUserStore = defineStore(
   'user',
@@ -38,80 +37,59 @@ export const useUserStore = defineStore(
       return openID.value
     }
 
-    const loginSession = ref<ILoginSession>()
-    const isLogined = computed(() => loginSession.value.memberID && loginSession.value.sessionID)
-    const isLoginExpired = computed(() => {
-      return !loginSession.value || dayjs().diff(loginSession.value.time, 'minute') > 60
-    })
+    const { data: loginSession, run: RunGetIDFastLogin } = useRequest(() => openIDorUnionIDFastLogin(openID.value))
+    const { data: MyMajorList, run: RunGetMyMajor } = useRequest(() => getMyMemberMajorList())
+    const { data: MyCompanyAndEmployeeList, run: RunGetMyCompanyAndEmployee } = useRequest(() => getMyCompanyAndEmployeeList())
+    const { data: OneMemberDetail, run: RunGetOneMemberDetail } = useRequest(() => getOneMemberDetail(loginSession.value.memberID))
+    const { data: BandingEmployee, run: RunBandingEmployee } = useRequest(() => bandingEmployeeWithPhone(OneMemberDetail.value?.phone))
+
     const onLogin = async () => {
       if (openID.value) {
         // 静态登录
-        const { run: FastLogin } = useRequest(() => openIDorUnionIDFastLogin(openID.value))
-        loginSession.value = { ...(await FastLogin()), time: dayjs() }
+        await RunGetIDFastLogin()
+        if (loginSession.value) {
+          loginSession.value = { ...loginSession.value, time: dayjs() }
+        }
 
-        // 城管身份 查询
-        await getMemberInfo()
+        // 获取身份列表
+        await RunGetMyMajor()
+        // 获取会员信息
+        await RunGetOneMemberDetail()
 
         if (isChengguan.value) {
-          await CompanyAndEmployee()
+          await RunGetMyCompanyAndEmployee()
+
+          if (!MyCompanyAndEmployeeList.value.length) {
+            await RunBandingEmployee()
+          }
         }
       }
     }
 
-    // 查询当前身份列表
-    const member = ref<MemberMajor[]>([])
-    const getMemberInfo = async () => {
-      const { run } = useRequest(() => getMyMemberMajorList())
-      member.value = (await run()).rows
-    }
-    const isChengguan = computed(() => {
-      return member.value.some((item) => item.majorID === MAJOR_ID_CHENGGUAN)
+    const isLogined = computed(() => loginSession.value.memberID && loginSession.value.sessionID)
+    const isLoginExpired = computed(() => {
+      return !loginSession.value || dayjs().diff(loginSession.value.time, 'minute') > 60
     })
 
-    const CompanyAndEmployeeList = ref<CompanyAndEmployee>()
-    const CompanyAndEmployee = async () => {
-      const { run: MyCompany } = useRequest(() => getMyCompanyAndEmployeeList())
-      const EmployeeList = await MyCompany()
-
-      CompanyAndEmployeeList.value = EmployeeList[0]
-
-      if (!EmployeeList.length) {
-        await OneMember()
-        await BandingEmployee()
-      }
-    }
-
-    const OneMemberDetail = ref<OneMemberDetail>()
-    const OneMember = async () => {
-      const { run } = useRequest(() => getOneMemberDetail())
-      OneMemberDetail.value = await run()
-    }
-
-    const Employee = ref<EmployeeWithPhone>()
-    const BandingEmployee = async () => {
-      const { run } = useRequest(() => bandingEmployeeWithPhone(OneMemberDetail.value?.phone))
-      Employee.value = await run()
-    }
+    const isChengguan = computed(() => {
+      return MyMajorList.value?.rows.some(item => item.majorID === MAJOR_ID_CHENGGUAN)
+    })
 
     return {
       openID,
       getOpenId,
 
       loginSession,
-      isLoginExpired,
       onLogin,
-      isLogined,
 
-      member,
-      getMemberInfo,
-
+      MyMajorList,
+      MyCompanyAndEmployeeList,
       OneMemberDetail,
-      OneMember,
+      BandingEmployee,
 
+      isLogined,
+      isLoginExpired,
       isChengguan,
-
-      Employee,
-      CompanyAndEmployeeList,
     }
   },
   {

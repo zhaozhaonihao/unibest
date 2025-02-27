@@ -20,17 +20,17 @@ export interface News {
 }
 
 /** 轮播图 */
-export const getFocusPictureList = () => {
+export function getFocusPictureList() {
   return http.get<IPageData<Picture>>('/getFocusPictureList.json', { focusID: FOCUSID })
 }
 
 /** 通知公告 */
-export const getNoticeArticleList = () => {
+export function getNoticeArticleList() {
   return http.get<IPageData<Notice>>('/getNoticeArticleList.json', { shopID: SHOPID })
 }
 
 /** 获取文章 */
-export const getNavigatorSimpleArticleList = (navigatorID: string, pageNumber?: number) => {
+export function getNavigatorSimpleArticleList(navigatorID: string, pageNumber?: number) {
   return http.get<IPageData<News>>('/getNavigatorSimpleArticleList.json', {
     navigatorID,
     pageNumber,

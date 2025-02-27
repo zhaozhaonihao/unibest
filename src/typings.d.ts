@@ -1,10 +1,10 @@
-import dayjs from 'dayjs'
+import type dayjs from 'dayjs'
 // 全局要用的类型放到这里
 
 declare global {
-  type IResData<T> = {
+  interface IResData<T> {
     body: T & { data: T }
-    header: { code: number; msg: string }
+    header: { code: number, msg: string }
   }
 
   interface IPageData<T> {
@@ -18,7 +18,7 @@ declare global {
   }
 
   // uni.uploadFile文件上传参数
-  type IUniUploadFileOptions = {
+  interface IUniUploadFileOptions {
     file?: File
     files?: UniApp.UploadFileOptionFiles[]
     filePath?: string
@@ -26,7 +26,7 @@ declare global {
     formData?: any
   }
 
-  type ILoginSession = {
+  interface ILoginSession {
     sessionID: string
     memberID: string
     time: dayjs.Dayjs
@@ -38,5 +38,4 @@ declare global {
   }
 }
 
-/* eslint-disable */
 export {}
