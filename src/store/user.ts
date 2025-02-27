@@ -40,7 +40,7 @@ export const useUserStore = defineStore(
     const { data: loginSession, run: RunGetIDFastLogin } = useRequest(() => openIDorUnionIDFastLogin(openID.value))
     const { data: MyMajorList, run: RunGetMyMajor } = useRequest(() => getMyMemberMajorList())
     const { data: MyCompanyAndEmployeeList, run: RunGetMyCompanyAndEmployee } = useRequest(() => getMyCompanyAndEmployeeList())
-    const { data: OneMemberDetail, run: RunGetOneMemberDetail } = useRequest(() => getOneMemberDetail())
+    const { data: OneMemberDetail, run: RunGetOneMemberDetail } = useRequest(() => getOneMemberDetail(loginSession.value.memberID))
     const { data: BandingEmployee, run: RunBandingEmployee } = useRequest(() => bandingEmployeeWithPhone(OneMemberDetail.value?.phone))
 
     const onLogin = async () => {
@@ -58,9 +58,8 @@ export const useUserStore = defineStore(
 
         if (isChengguan.value) {
           await RunGetMyCompanyAndEmployee()
-          console.log('MyCompanyAndEmployeeList', MyCompanyAndEmployeeList)
 
-          if (!MyCompanyAndEmployeeList[0].length) {
+          if (!MyCompanyAndEmployeeList.value.length) {
             await RunBandingEmployee()
           }
         }
@@ -73,7 +72,7 @@ export const useUserStore = defineStore(
     })
 
     const isChengguan = computed(() => {
-      return MyMajorList.value.rows.some(item => item.majorID === MAJOR_ID_CHENGGUAN)
+      return MyMajorList.value?.rows.some(item => item.majorID === MAJOR_ID_CHENGGUAN)
     })
 
     return {
@@ -82,13 +81,15 @@ export const useUserStore = defineStore(
 
       loginSession,
       onLogin,
-      isLogined,
-      isLoginExpired,
 
       MyMajorList,
       MyCompanyAndEmployeeList,
       OneMemberDetail,
       BandingEmployee,
+
+      isLogined,
+      isLoginExpired,
+      isChengguan,
     }
   },
   {

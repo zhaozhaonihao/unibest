@@ -1,5 +1,5 @@
 import { pages, subPackages, tabBar } from '@/pages.json'
-import { isMpWeixin } from './platform'
+import { isH5, isMpWeixin } from './platform'
 
 function getLastPage() {
   // getCurrentPages() 至少有1个元素，所以不再额外判断
@@ -152,26 +152,31 @@ export function getEnvBaseUrl() {
  * 根据微信小程序当前环境，判断应该获取的UPLOAD_BASEURL
  */
 export function getEnvBaseUploadUrl() {
-  // 请求基准地址
-  let baseUploadUrl = import.meta.env.VITE_UPLOAD_BASEURL
+  const {
+    VITE_UPLOAD_BASEURL,
+    VITE_UPLOAD_BASEURL__WEIXIN_DEVELOP,
+    VITE_UPLOAD_BASEURL__WEIXIN_TRIAL,
+    VITE_UPLOAD_BASEURL__WEIXIN_RELEASE,
+    VITE_UPLOAD,
+  } = import.meta.env
 
-  // 微信小程序端环境区分
+  let baseUploadUrl = VITE_UPLOAD_BASEURL
+
   if (isMpWeixin) {
-    const {
-      miniProgram: { envVersion },
-    } = uni.getAccountInfoSync()
+    const { miniProgram: { envVersion } } = uni.getAccountInfoSync()
 
-    switch (envVersion) {
-      case 'develop':
-        baseUploadUrl = import.meta.env.VITE_UPLOAD_BASEURL__WEIXIN_DEVELOP || baseUploadUrl
-        break
-      case 'trial':
-        baseUploadUrl = import.meta.env.VITE_UPLOAD_BASEURL__WEIXIN_TRIAL || baseUploadUrl
-        break
-      case 'release':
-        baseUploadUrl = import.meta.env.VITE_UPLOAD_BASEURL__WEIXIN_RELEASE || baseUploadUrl
-        break
+    // 通过映射对象替代 switch-case，避免冗余
+    const weixinEnvMap = {
+      develop: VITE_UPLOAD_BASEURL__WEIXIN_DEVELOP,
+      trial: VITE_UPLOAD_BASEURL__WEIXIN_TRIAL,
+      release: VITE_UPLOAD_BASEURL__WEIXIN_RELEASE,
     }
+
+    baseUploadUrl = weixinEnvMap[envVersion] || baseUploadUrl
+    baseUploadUrl += VITE_UPLOAD
+  }
+  else if (isH5) {
+    baseUploadUrl = VITE_UPLOAD
   }
 
   return baseUploadUrl

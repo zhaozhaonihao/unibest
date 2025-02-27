@@ -26,7 +26,7 @@ onPullDownRefresh(() => {
 
 <template>
   <wd-config-provider :theme-vars="themeVars" custom-class="h-full">
-    <view class="p-4 bg-[#f5f5f5] h-[calc(100%-2rem)]">
+    <view class="bg-[#f5f5f5] h-full">
       <slot />
     </view>
     <wd-toast />

@@ -51,7 +51,7 @@ export function http<T>(options: CustomRequestOptions) {
         )
 
         // 如果后端返回 10000，表示需要重新登录
-        if (header?.code === 10000) {
+        if (header?.code === 10000 && header.msg === '请先登录') {
           // 调用 onLogin 获取新 token
           useUserStore()
             .onLogin()

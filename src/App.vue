@@ -32,9 +32,6 @@ page {
 /* #endif */
 
 /* #ifdef H5 */
-uni-app,
-uni-page,
-uni-page-wrapper,
 uni-page-body {
   height: 100%;
 }

@@ -51,8 +51,8 @@ export interface OneMemberDetail {
   propertyID: string
 }
 /** 会员信息 */
-export function getOneMemberDetail() {
-  return http.get<OneMemberDetail>('/getOneMemberDetail.json')
+export function getOneMemberDetail(memberID: string) {
+  return http.get<OneMemberDetail>('/getOneMemberDetail.json', { memberID })
 }
 
 export interface EmployeeWithPhone {
