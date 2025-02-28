@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useUserStore } from '@/store'
-import { onHide, onLaunch, onShow } from '@dcloudio/uni-app'
 
 import 'abortcontroller-polyfill/dist/abortcontroller-polyfill-only'
 

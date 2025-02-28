@@ -21,7 +21,7 @@ const httpInterceptor = {
     const loginSession = userStore.loginSession as ILoginSession | undefined
 
     // 附加登录信息到 query 中（如果存在）
-    if (loginSession?.sessionID && loginSession?.memberID) {
+    if (loginSession?.sessionID) {
       options.query = {
         sessionID: loginSession.sessionID,
         ...options.query,

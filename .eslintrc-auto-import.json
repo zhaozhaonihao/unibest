@@ -113,6 +113,23 @@
     "SHOPID": true,
     "SITEID": true,
     "WEIXINID": true,
-    "MAJOR_ID_CHENGGUAN": true
+    "MAJOR_ID_CHENGGUAN": true,
+    "acceptHMRUpdate": true,
+    "createPinia": true,
+    "defineStore": true,
+    "getActivePinia": true,
+    "mapActions": true,
+    "mapGetters": true,
+    "mapState": true,
+    "mapStores": true,
+    "mapWritableState": true,
+    "setActivePinia": true,
+    "setMapStoreSuffix": true,
+    "store": true,
+    "storeToRefs": true,
+    "useInspection": true,
+    "useLocationStore": true,
+    "useMoveTask": true,
+    "useUserStore": true
   }
 }

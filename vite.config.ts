@@ -15,6 +15,7 @@ import dayjs from 'dayjs'
 import { visualizer } from 'rollup-plugin-visualizer'
 import UnoCSS from 'unocss/vite'
 import AutoImport from 'unplugin-auto-import/vite'
+import Components from 'unplugin-vue-components/vite'
 import { defineConfig, loadEnv } from 'vite'
 import ViteRestart from 'vite-plugin-restart'
 import { copyNativeRes } from './vite-plugins/copyNativeRes'
@@ -73,14 +74,20 @@ export default ({ command, mode }) => {
         imports: [
           'vue',
           'uni-app',
+          'pinia',
           {
             '@tanstack/vue-query': ['useQuery'],
           },
         ],
         dts: 'src/types/auto-import.d.ts',
-        dirs: ['src/hooks', 'src/composables/constants'], // 自动导入 hooks
+        dirs: ['src/composables', 'src/hooks', 'src/store'], // 自动导入 hooks
         eslintrc: { enabled: true },
         vueTemplate: true, // default false
+      }),
+      Components({
+        deep: false,
+        globs: ['src/components/*/index.vue'],
+        dts: 'src/types/components.d.ts',
       }),
 
       ViteRestart({

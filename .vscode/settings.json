@@ -7,7 +7,7 @@
   // ✅ 开启自动修复（仅保留 ESLint）
   "editor.codeActionsOnSave": {
     "source.fixAll": "explicit", // 允许代码修复
-    "source.fixAll.eslint": "explicit" // 只允许 ESLint 自动修复
+    "source.fixAll.eslint": "never" // 只允许 ESLint 自动修复
   },
   // // ✅ 关闭 VS Code 内置的 CSS / SCSS / LESS 语法检查，避免与 ESLint 冲突
   // "css.validate": false,
