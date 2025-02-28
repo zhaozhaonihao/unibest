@@ -3,7 +3,9 @@
     "navigationStyle": "default",
     "navigationBarTitleText": "unibest",
     "navigationBarBackgroundColor": "#f8f8f8",
-    "navigationBarTextStyle": "black"
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#FFFFFF",
+    "enablePullDownRefresh": true
   },
   "easycom": {
     "autoscan": true,
@@ -56,8 +58,17 @@
       }
     },
     {
+      "path": "pages/find/index",
+      "type": "page",
+      "layout": "default",
+      "style": {
+        "navigationBarTitleText": ""
+      }
+    },
+    {
       "path": "pages/inspection/dot",
       "type": "page",
+      "layout": "page",
       "style": {
         "navigationBarTitleText": "巡视点位"
       }
@@ -72,13 +83,15 @@
     {
       "path": "pages/inspection/index",
       "type": "page",
+      "layout": "page",
       "style": {
-        "navigationBarTitleText": "巡视列表"
+        "navigationBarTitleText": "选择路线"
       }
     },
     {
       "path": "pages/inspection/instanceList",
       "type": "page",
+      "layout": "page",
       "style": {
         "navigationBarTitleText": "巡视列表"
       }
@@ -100,9 +113,8 @@
     {
       "path": "pages/move/add",
       "type": "page",
-      "layout": "default",
       "style": {
-        "navigationBarTitleText": "巡检路线"
+        "navigationBarTitleText": "开始挪车"
       }
     },
     {
@@ -113,11 +125,10 @@
       }
     },
     {
-      "path": "pages/move/take",
+      "path": "pages/mine/user_info/index",
       "type": "page",
-      "layout": "default",
       "style": {
-        "navigationBarTitleText": "拍照"
+        "navigationBarTitleText": "个人信息"
       }
     }
   ],
