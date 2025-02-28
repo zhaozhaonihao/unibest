@@ -25,6 +25,7 @@ export const useUserStore = defineStore(
           success: async ({ code }) => {
             const { run } = useRequest(() => getWeiXinAppOpenId(code))
             openID.value = (await run()).openID
+            await onLogin()
           },
         })
         // #endif

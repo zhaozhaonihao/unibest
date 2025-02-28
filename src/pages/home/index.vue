@@ -8,19 +8,10 @@
 </route>
 
 <script lang="ts" setup>
-import Article from '@/components/Article/index.vue'
-import Divider from '@/components/Divider/index.vue'
+import { getFocusPictureList, getNavigatorSimpleArticleList, getNoticeArticleList } from '@/service/static'
 
-import {
-  getFocusPictureList,
-  getNavigatorSimpleArticleList,
-  getNoticeArticleList,
-} from '@/service/static/index'
-
-import { useUserStore } from '@/store'
-import { storeToRefs } from 'pinia'
 import chengguan from './components/chengguan.vue'
-import search from './components/search.vue'
+import SearchWrap from './components/search.vue'
 
 const userStore = useUserStore()
 const { isChengguan } = storeToRefs(userStore)
@@ -35,9 +26,7 @@ const { data: NoticeArticleList } = useRequest(() => getNoticeArticleList(), { i
 const noticeArticleList = computed(() => NoticeArticleList.value?.rows.map(i => i.title))
 
 // 新闻3条
-const { data: NewsArticleList } = useRequest(() => getNavigatorSimpleArticleList(NAVIGATORID, 3), {
-  immediate: true,
-})
+const { data: NewsArticleList } = useRequest(() => getNavigatorSimpleArticleList(NAVIGATORID, 3), { immediate: true })
 const newsArticleList = computed(() => NewsArticleList.value?.rows)
 
 function onSearch() {
@@ -57,12 +46,14 @@ function onNotice({ index, title }) {
 </script>
 
 <template>
-  <view class="flex flex-col gap-3">
-    <search @search="onSearch" @scan="onScan" @message="onMessage" />
+  <view class="flex flex-col gap-3 p-4">
+    <SearchWrap @search="onSearch" @scan="onScan" @message="onMessage" />
 
     <wd-swiper :list="pictureList" autoplay :indicator="indicator" />
 
-    <wd-notice-bar type="info" prefix="notification" direction="vertical" :text="noticeArticleList" :delay="3" @click="onNotice" />
+    <wd-notice-bar type="info" prefix="notification" direction="vertical" :text="noticeArticleList" :delay="3"
+                   @click="onNotice"
+    />
 
     <chengguan v-if="isChengguan" />
     <view v-else>

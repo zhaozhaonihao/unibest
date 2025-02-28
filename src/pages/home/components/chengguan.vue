@@ -11,7 +11,6 @@ async function _onParkChange(e) {
 }
 
 function onClick() {
-  console.log('onClick')
   uni.navigateTo({ url: '/pages/inspection/index' })
   // uni.showActionSheet({})
 }

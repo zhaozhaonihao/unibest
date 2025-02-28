@@ -11,7 +11,6 @@ export const useLocationStore = defineStore(
     // 获取位置
     const fetchLocation = () => {
       uni.getLocation({
-        type: 'wgs84',
         success: (res) => {
           latitude.value = res.latitude
           longitude.value = res.longitude
