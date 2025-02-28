@@ -1,13 +1,21 @@
 <route lang="json5">
-{
-  style: {
-    navigationBarTitleText: '个人中心',
-  },
-}
-</route>
+  {
+    style: {
+      navigationBarTitleText: '个人中心',
+    },
+  }
+  </route>
 
 <script setup lang="ts">
 import Divider from '@/components/Divider/index.vue'
+import { useUserStore } from '@/store/user'
+import { storeToRefs } from 'pinia'
+
+const userStore = useUserStore()
+const { OneMemberDetail: userInfo, isLogined } = storeToRefs(userStore)
+const imgUrl = computed(() => {
+  return userInfo.value.avatarURL || 'https://imgs.699pic.com/images/500/465/562.jpg!list1x.v2'
+})
 
 const shortcuts = ref([
   { label: '邀请好友', icon: 'i-tabler:user-plus' },
@@ -18,28 +26,47 @@ const shortcuts = ref([
   { label: '意见反馈', icon: 'i-tabler:mail-opened' },
 ])
 
-const _settings = ref([
+const settings = ref([
   { label: '隐私协议', icon: 'i-tabler:shield-lock' },
   { label: '注册协议', icon: 'i-tabler:file-text' },
   { label: '操作手册', icon: 'i-tabler:book' },
   { label: '常见问题', icon: 'i-tabler:help-circle' },
   { label: '关于我们', icon: 'i-tabler:info-circle' },
 ])
+
+// 跳转用户信息
+function onUserInfo() {
+  uni.navigateTo({ url: '/pages/mine/user_info/index' })
+}
+
+// 用户登录
+function onLogin() {
+  uni.navigateTo({ url: '/pages/login/login_apply/index' })
+}
 </script>
 
 <template>
   <view class="flex flex-col gap-3">
-    <view class="flex items-center gap-4">
-      <wd-img :width="100" :height="100" round
-        src="https://img11.360buyimg.com/imagetools/jfs/t1/143248/37/5695/265818/5f3a8546E98d998a4/745897ca9c9e474b.jpg" />
+    <view v-if="isLogined" class="flex items-center gap-4" @click="onUserInfo">
+      <wd-img :width="100" :height="100" round :src="imgUrl" />
       <view>
         <view class="mt-2 text-xl font-bold">
-          柯
+          {{ userInfo.shortName }}
         </view>
         <view class="text-gray-500">
-          19521491949
+          {{ userInfo.phone }}
         </view>
       </view>
+    </view>
+
+    <view v-else class="header-unlogin">
+      <img class="avatar" src="/static/img/mine/avatar.svg" alt="">
+      <view class="unlogin">
+        未登录
+      </view>
+      <wd-button @click="onLogin">
+        授权登录
+      </wd-button>
     </view>
 
     <Divider />
@@ -56,9 +83,9 @@ const _settings = ref([
 
     <view>
       <wd-cell-group class="">
-        <wd-cell :title="item.label" :border="true" v-for="item in settings" :key="item.label" is-link to="" center>
+        <wd-cell v-for="item in settings" :key="item.label" :title="item.label" :border="true" is-link to="" center>
           <template #icon>
-            <view :class="item.icon"></view>
+            <view :class="item.icon" />
           </template>
         </wd-cell>
       </wd-cell-group>

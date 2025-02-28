@@ -85,6 +85,7 @@ export const useUserStore = defineStore(
       MyMajorList,
       MyCompanyAndEmployeeList,
       OneMemberDetail,
+      RunGetOneMemberDetail,
       BandingEmployee,
 
       isLogined,
