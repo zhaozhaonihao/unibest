@@ -49,6 +49,7 @@ export interface OneMemberDetail {
   phone: string
   avatarURL: string
   propertyID: string
+  shortName: string
 }
 /** 会员信息 */
 export function getOneMemberDetail(memberID: string) {

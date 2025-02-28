@@ -31,6 +31,11 @@ declare global {
     memberID: string
     time: dayjs.Dayjs
   }
+
+  type ILoginInfo = {
+    sessionID: string
+    memberID: string
+  }
 }
 
 export {}
