@@ -18,11 +18,21 @@ function onClick() {
 function onMove() {
   uni.navigateTo({ url: '/pages/move/index' })
 }
+
+function onFeature() {
+  uni.navigateTo({ url: '/pages/feature/index' })
+}
+
+function onPhone() {
+  uni.makePhoneCall({
+    phoneNumber: '19521491949',
+  })
+}
 </script>
 
 <template>
   <view class="flex flex-col gap-2 p-4 bg-white">
-    <view class="flex justify-between">
+    <view class="flex justify-between items-center">
       <view class="text-4 font-bold">
         我推荐的停车点位
       </view>
@@ -37,6 +47,14 @@ function onMove() {
 
     <view>内容</view>
 
+    <wd-button plain @click="onPhone">
+      拨号呼叫
+    </wd-button>
+
+    <wd-button plain @click="onFeature">
+      车辆特征
+    </wd-button>
+
     <wd-button plain @click="onClick">
       巡视
     </wd-button>
@@ -48,7 +66,7 @@ function onMove() {
       <view class="select-wrap">
         <text class="select-title">挪车区域</text>
         <text>{{ '请选择' }}</text>
-        <view class="i-table:icon"></view>
+        <view class=""></view>
       </view>
     </picker> -->
   </view>

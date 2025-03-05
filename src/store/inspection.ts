@@ -1,6 +1,4 @@
 import {
-  beginOneRouteInstance,
-  endOneRouteInstance,
   getRouteDefineList,
   getRouteInstanceDotList,
   getRouteInstanceList,
@@ -9,28 +7,37 @@ import {
 export const useInspection = defineStore(
   'inspection',
   () => {
-    const { loginSession } = storeToRefs(useUserStore())
-
-    const routeDefineID = ref<string>()
-
     // 路线定义
     const {
       data: RouteDefine,
       run: RunGetRouteDefineList,
     } = useRequest(() => getRouteDefineList())
-    const routeDefine = computed(() => RouteDefine.value?.rows.map((i) => {
-      return {
-        label: i.name,
-        value: i.routeDefineID,
+    const handleRouteDefineIdx = ref<number | undefined>(undefined)
+    const routeDefine = computed(() => {
+      return RouteDefine.value?.rows?.map((i) => {
+        return {
+          id: i.routeDefineID,
+          name: i.name,
+
+          label: i.name,
+          value: i.routeDefineID,
+        }
+      }) || []
+    })
+    const HandleRouteDefine = computed(() => {
+      const index = handleRouteDefineIdx.value
+      const list = routeDefine.value
+
+      if (typeof index === 'number' && index >= 0 && index < list.length) {
+        return list[index]
       }
-    }))
-    const handleRouteDefine = ref<number | undefined>(undefined)
-    const HandleRouteDefine = computed(() => routeDefine.value[handleRouteDefine.value])
+      return undefined
+    })
     const UnLoadRouteDefine = () => {
       console.log('离开路线列表')
 
       RouteDefine.value = undefined
-      handleRouteDefine.value = undefined
+      UnLoadRouteInstance()
     }
 
     // 巡视实例
@@ -40,26 +47,39 @@ export const useInspection = defineStore(
     } = useRequest(() => getRouteInstanceList({
       routeDefineID: HandleRouteDefine.value.value,
     }))
-    const routeInstanceList = computed(() => RouteInstanceList.value?.rows.map((i) => {
-      return {
-        id: i.routeInstanceID,
-        title: i.name,
-        label: i.routeDefineName,
-        value: i.employeeName,
+    const handleRouteInstanceIdx = ref<number | undefined>(undefined)
+    const routeInstanceList = computed(() => {
+      return RouteInstanceList.value?.rows?.map((i) => {
+        return {
+          id: i.routeInstanceID,
+          name: i.name,
 
-        realBeginTime: i.realBeginTime,
-        realBeginTimeStr: i.realBeginTimeStr,
-        realEndTime: i.realEndTime,
-        realEndTimeStr: i.realEndTimeStr,
+          title: i.name,
+          label: i.routeDefineName,
+          value: i.employeeName,
+
+          realBeginTime: i.realBeginTime,
+          realBeginTimeStr: i.realBeginTimeStr,
+          realEndTime: i.realEndTime,
+          realEndTimeStr: i.realEndTimeStr,
+        }
+      }) || []
+    })
+    const HandleRouteInstance = computed(() => {
+      const index = handleRouteInstanceIdx.value
+      const list = routeInstanceList.value
+
+      if (typeof index === 'number' && index >= 0 && index < list.length) {
+        return list[index]
       }
-    }))
-    const handleRouteInstance = ref<number | undefined>(undefined)
-    const HandleRouteInstance = computed(() => routeInstanceList.value[handleRouteInstance.value])
+      return undefined
+    })
     const UnLoadRouteInstance = () => {
       console.log('离开路线  =》 实例列表')
 
       RouteInstanceList.value = undefined
-      handleRouteInstance.value = undefined
+      handleRouteDefineIdx.value = undefined
+      UnLoadDotList()
     }
 
     // 实例巡视点
@@ -67,57 +87,55 @@ export const useInspection = defineStore(
       data: RouteInstanceDotList,
       run: RunGetRouteInstanceDotList,
     } = useRequest(() => getRouteInstanceDotList({
-      memberID: loginSession.value.memberID,
       routeInstanceID: HandleRouteInstance.value.id,
     }))
-    const routeInstanceDotList = computed(() => RouteInstanceDotList.value?.rows.map((i) => {
-      return {
-        id: i.routeInstanceID,
+    const handleRouteInstanceDotIdx = ref<number | undefined>(undefined)
+    const routeInstanceDotList = computed(() => {
+      return RouteInstanceDotList.value?.rows?.map(i => ({
+        id: i.routeInstanceDotID,
         name: i.name,
-      }
-    }))
-    const handleRouteInstanceDot = ref<number | undefined>(undefined)
-    const HandleRouteInstanceDot = computed(() => routeInstanceDotList.value[handleRouteInstanceDot.value])
 
-    const UnLoadRouteInstanceDot = () => {
+        title: i.name,
+
+        comeTimeStr: i.comeTimeStr,
+      })) || []
+    })
+    const HandleRouteInstanceDot = computed(() => {
+      const index = handleRouteInstanceDotIdx.value
+      const list = routeInstanceDotList.value
+
+      if (typeof index === 'number' && index >= 0 && index < list.length) {
+        return list[index]
+      }
+      return undefined
+    })
+    const UnLoadDotList = () => {
       console.log('离开路线  =》 实例  =》  检查点')
       RouteInstanceDotList.value = undefined
-      handleRouteInstanceDot.value = undefined
+      handleRouteInstanceIdx.value = undefined
+      UnLoadDot()
     }
 
-    // 开始巡视
-    const {
-      data: BeginOneRouteInstance,
-      run: RunBeginOneRouteInstance,
-    } = useRequest(() => beginOneRouteInstance({
-      routeInstanceID: HandleRouteInstance.value.id,
-    }))
-
-    // 完成巡视
-    const {
-      data: EndOneRouteInstance,
-      run: RunEndOneRouteInstance,
-    } = useRequest(() => endOneRouteInstance({
-      routeInstanceID: HandleRouteInstance.value.id,
-    }))
-
-    /**
-     * 离开巡视页面
-     * 清除 BeginOneRouteInstance 和 EndOneRouteInstance
-     */
-    const UnLoadOneRouteInstance = () => {
-      BeginOneRouteInstance.value = undefined
-      EndOneRouteInstance.value = undefined
+    /** 离开巡视点位 */
+    const UnLoadDot = () => {
+      handleRouteInstanceDotIdx.value = undefined
     }
+
+    const HeaderOptions = computed(() => {
+      return [
+        { label: '巡视路线', value: HandleRouteDefine.value?.name },
+        { label: '巡视实例', value: HandleRouteInstance.value?.name },
+        { label: '巡视点位', value: HandleRouteInstanceDot.value?.name },
+        { label: '到达时间', value: HandleRouteInstanceDot.value?.comeTimeStr },
+      ]
+    })
 
     return {
-      routeDefineID,
-
       // 路线定义
       RouteDefine,
       routeDefine,
       RunGetRouteDefineList,
-      handleRouteDefine,
+      handleRouteDefineIdx,
       HandleRouteDefine,
       UnLoadRouteDefine,
 
@@ -125,7 +143,7 @@ export const useInspection = defineStore(
       RouteInstanceList,
       routeInstanceList,
       RunGetRouteInstanceList,
-      handleRouteInstance,
+      handleRouteInstanceIdx,
       HandleRouteInstance,
       UnLoadRouteInstance,
 
@@ -133,26 +151,16 @@ export const useInspection = defineStore(
       RouteInstanceDotList,
       routeInstanceDotList,
       RunGetRouteInstanceDotList,
-      handleRouteInstanceDot,
+      handleRouteInstanceDotIdx,
       HandleRouteInstanceDot,
-      UnLoadRouteInstanceDot,
+      UnLoadDotList,
 
-      // 开始巡视
-      BeginOneRouteInstance,
-      RunBeginOneRouteInstance,
-      // 结束巡视
-      EndOneRouteInstance,
-      RunEndOneRouteInstance,
-      UnLoadOneRouteInstance,
+      UnLoadDot,
+
+      HeaderOptions,
     }
   },
   {
     persist: true,
   },
 )
-
-/**
-    [Request]: /beginOneRouteInstance.json
-    [Params]: {routeInstanceID: '53d30ea3aa8d49f5b3629c00b76494a5'}
-    [Response 0]: {realBeginTime: '2025-02-28 10:37:48'}
- */

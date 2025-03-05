@@ -1,21 +1,13 @@
 <route lang="json5">
-  {
-    style: {
-      navigationBarTitleText: '个人中心',
-    },
-  }
-  </route>
+{
+  style: {
+    navigationBarTitleText: '个人中心',
+  },
+}
+</route>
 
 <script setup lang="ts">
-import Divider from '@/components/Divider/index.vue'
-import { useUserStore } from '@/store/user'
-import { storeToRefs } from 'pinia'
-
-const userStore = useUserStore()
-const { OneMemberDetail: userInfo, isLogined } = storeToRefs(userStore)
-const imgUrl = computed(() => {
-  return userInfo.value.avatarURL || 'https://imgs.699pic.com/images/500/465/562.jpg!list1x.v2'
-})
+const { avatarURL, OneMemberDetail: userInfo, isLogined } = storeToRefs(useUserStore())
 
 const shortcuts = ref([
   { label: '邀请好友', icon: 'i-tabler:user-plus' },
@@ -48,7 +40,7 @@ function onLogin() {
 <template>
   <view class="flex flex-col gap-3">
     <view v-if="isLogined" class="flex items-center gap-4" @click="onUserInfo">
-      <wd-img :width="100" :height="100" round :src="imgUrl" />
+      <wd-img width="100" height="100" round :src="avatarURL" />
       <view>
         <view class="mt-2 text-xl font-bold">
           {{ userInfo.shortName }}
@@ -60,7 +52,7 @@ function onLogin() {
     </view>
 
     <view v-else class="header-unlogin">
-      <img class="avatar" src="/static/img/mine/avatar.svg" alt="">
+      <wd-img class="avatar" src="/static/img/mine/avatar.svg" />
       <view class="unlogin">
         未登录
       </view>
@@ -82,13 +74,7 @@ function onLogin() {
     <Divider />
 
     <view>
-      <wd-cell-group class="">
-        <wd-cell v-for="item in settings" :key="item.label" :title="item.label" :border="true" is-link to="" center>
-          <template #icon>
-            <view :class="item.icon" />
-          </template>
-        </wd-cell>
-      </wd-cell-group>
+      <Cell v-for="item in settings" :key="item.label" class="rounded-0!" :icon="item.icon" :title="item.label" />
     </view>
   </view>
 </template>

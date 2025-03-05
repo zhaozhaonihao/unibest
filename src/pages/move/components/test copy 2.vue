@@ -1,23 +1,21 @@
 <route lang="json5">
 {
   style: {
-    navigationBarTitleText: '巡视',
+    navigationBarTitleText: '测试页面',
   },
 }
 </route>
 
 <script setup lang="ts">
-import { getRouteInstanceList } from '@/service/static/inspection'
-
 const list = computed(() => {
   return [{ title: 'A出口' }, { title: 'B出口' }, { title: 'C出口' }, { title: '泗泾大润发停车场' }]
 })
 
-const routeDefineID = ref('bc10dcf9302c4038952973e7729c6b69')
-const { data: InstanceList } = useRequest(() => getRouteInstanceList(routeDefineID.value), {
-  immediate: true,
-})
-console.log('InstanceList:', InstanceList.value)
+// const { data } = useRequest(() => getRouteInstanceList('bc10dcf9302c4038952973e7729c6b69'), {
+//   immediate: true,
+// })
+// console.log(data)
+
 // const noticeArticleList = computed(() => NoticeArticleList.value?.rows.map((i) => i.title))
 </script>
 
@@ -35,10 +33,9 @@ console.log('InstanceList:', InstanceList.value)
       </view>
     </view>
     <view class="flex-1" />
-    <wd-button custom-class="w-full mt-auto!" size="large" block>
+    <wd-button custom-class="w-full mt-auto!" block>
       开始巡视
     </wd-button>
   </view>
-
-  <wd-gap safe-area-bottom />
+  <wd-gap safe-area-bottom height="0" />
 </template>
