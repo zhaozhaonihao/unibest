@@ -24,8 +24,8 @@ const {
   RunGetRouteInstanceList,
 } = useInspection()
 
-const isRealBegin = computed(() => HandleRouteInstance.value.realBeginTimeStr)
-const isRealEnd = computed(() => HandleRouteInstance.value.realEndTimeStr)
+const isRealBegin = computed(() => HandleRouteInstance.value?.realBeginTimeStr)
+const isRealEnd = computed(() => HandleRouteInstance.value?.realEndTimeStr)
 
 onLoad(() => RunGetRouteInstanceDotList())
 onUnload(() => UnLoadDotList())
@@ -54,7 +54,7 @@ function onclick(idx: number) {
 
   <view class="flex-1 overflow-y-auto flex flex-col gap-4 p-4">
     <template v-for="(item, idx) in routeInstanceDotList" :key="item.id">
-      <Cell :title="item.title" :label="`到达时间: ${item.comeTimeStr}`" @click="onclick(idx)" />
+      <Cell class="bg-white" :title="item.title" :label="`到达时间: ${item.comeTimeStr}`" @click="onclick(idx)" />
     </template>
   </view>
 

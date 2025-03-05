@@ -50,6 +50,7 @@ export interface OneMemberDetail {
   avatarURL: string
   propertyID: string
   shortName: string
+  propertyName: string
 }
 /** 会员信息 */
 export function getOneMemberDetail(memberID: string) {

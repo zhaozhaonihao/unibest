@@ -9,6 +9,8 @@
 </route>
 
 <script setup lang="ts">
+import Cell from '@/components/Cell/index.vue'
+
 const { VehicleProcessList } = storeToRefs(useMoveStore())
 const { RunGetVehicleProcessList } = useMoveStore()
 

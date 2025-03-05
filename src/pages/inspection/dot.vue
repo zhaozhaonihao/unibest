@@ -101,7 +101,6 @@ async function onPhone(e: { selectedItems: { phone: string } }) {
       <view>电动车停放有序，不超出停车线</view>
       <view>如果有超出停车线的，请及时摆正</view>
       <view>如果电动车过多，难以摆正，请呼叫挪车人员</view>
-      <view>{{ locationInfo }}</view>
     </view>
 
     <template v-if="checkDotParams.resultType === 2">

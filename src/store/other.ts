@@ -31,6 +31,7 @@ export const useOtherStore = defineStore(
       })
     }
 
+    // 公司成员
     const { data: EmployeeList, run: RunGetEmployeeList } = useRequest(() => getEmployeeList())
     const handleEmployee = ref<string | undefined>()
     const employeeList = computed(() => {
@@ -55,6 +56,7 @@ export const useOtherStore = defineStore(
       employeeList,
       RunGetEmployeeList,
       handleEmployee,
+
     }
   },
   {

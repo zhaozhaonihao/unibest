@@ -45,7 +45,7 @@ function onClick(idx: number) {
 
   <view class="flex-1 flex flex-col gap-4 h-full overflow-y-auto py-4">
     <template v-for="(item, idx) in routeInstanceList" :key="item.id">
-      <Cell :title="item.title" :label="item.label" :value="item.value" @click="onClick(idx)" />
+      <Cell class="bg-white" :title="item.title" :label="item.label" :value="item.value" @click="onClick(idx)" />
     </template>
   </view>
 

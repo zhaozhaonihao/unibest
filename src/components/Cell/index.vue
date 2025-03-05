@@ -14,7 +14,7 @@ function onClick() {
 
 <template>
   <view
-    class="flex justify-between items-center bg-white p-4 rounded-4"
+    class="flex justify-between items-center p-4 rounded-4"
     hover-class="bg-[rgba(0,0,0,0.06)]!"
     @click="onClick"
   >
