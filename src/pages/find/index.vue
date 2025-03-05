@@ -89,7 +89,8 @@ function onFeature() {
 
   <uni-popup ref="alertDialog" type="dialog">
     <uni-popup-dialog type="info" cancel-text="关闭" confirm-text="特征查车" title="提示"
-      :content="`未查询到车牌号${sequenceCode}的动态信息`" @confirm="onFeature" @close="dialogClose" />
+                      :content="`未查询到车牌号${sequenceCode}的动态信息`" @confirm="onFeature" @close="dialogClose"
+    />
   </uni-popup>
 </template>
 

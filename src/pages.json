@@ -78,15 +78,16 @@
     },
     {
       "path": "pages/find/index",
-      "type": "find",
+      "type": "page",
       "layout": "default",
       "style": {
-        "navigationBarTitleText": "搜索"
+        "navigationBarTitleText": ""
       }
     },
     {
       "path": "pages/inspection/dot",
       "type": "page",
+      "layout": "page",
       "style": {
         "navigationBarTitleText": "巡视点位"
       }
@@ -101,13 +102,15 @@
     {
       "path": "pages/inspection/index",
       "type": "page",
+      "layout": "page",
       "style": {
-        "navigationBarTitleText": "巡视列表"
+        "navigationBarTitleText": "选择路线"
       }
     },
     {
       "path": "pages/inspection/instanceList",
       "type": "page",
+      "layout": "page",
       "style": {
         "navigationBarTitleText": "巡视列表"
       }
