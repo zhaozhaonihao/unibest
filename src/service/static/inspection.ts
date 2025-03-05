@@ -1,10 +1,6 @@
+import { useUserStore } from '@/store'
 import { http } from '@/utils/http'
 import dayjs from 'dayjs'
-
-export interface RouteDefine {
-  routeDefineID: string
-  name: string
-}
 
 export interface RouteInstance {
   routeInstanceID: string
@@ -17,32 +13,88 @@ export interface RouteInstance {
 
   employeeName: string
 
-  planBeginTime: string
-  planEndTime: string
+  realBeginTime: number | null
+  realBeginTimeStr: string
+  realEndTime: number | null
+  realEndTimeStr: string | null
+}
+export function getRouteInstanceList(params: {
+  routeDefineID: string
+  memberID?: string
+  employeeID?: string
+  sortTypeTime?: 1 | 2
+}) {
+  return http.get<IPageData<RouteInstance>>('/getRouteInstanceList.json', {
+    memberID: useUserStore().loginSession.memberID,
+    sortTypeTime: 2,
+    ...params,
+  })
+}
+
+export interface RouteDefine {
+  routeDefineID: string
+  name: string
+}
+/** 获取路线定义列表 */
+export function getRouteDefineList() {
+  return http.get<IPageData<RouteDefine>>('/getRouteDefineList.json')
+}
+
+export function createOneRouteInstance(params: {
+  routeDefineID: string
+  name: string
+  memberID?: string
+  employeeID?: string
+  planDate?: string
+}) {
+  return http.get('/createOneRouteInstance.json', {
+    memberID: useUserStore().loginSession.memberID,
+    planDate: dayjs().format('YYYY-MM-DD'),
+    ...params,
+  })
+}
+
+export interface RouteInstanceDot {
+  routeInstanceDotID: string
+  name: string
+
+  routeDefineDotID: string
+  routeDefineDotName: string
+  routeDefineID: string
+  routeDefineName: string
+  routeInstanceID: string
+  routeInstanceName: string
+  serviceCompanyID: string
+  serviceCompanyName: string
+}
+export function getRouteInstanceDotList(params: {
+  memberID: string
+  routeDefineID?: string
+  routeInstanceID: string
+  routeDefineDotID?: string
+}) {
+  return http.get<IPageData<RouteInstanceDot>>('/getRouteInstanceDotList.json', {
+    ...params,
+  })
+}
+
+export interface BeginOneRouteInstance {
   realBeginTime: string
+}
+export function beginOneRouteInstance(params: {
+  routeInstanceID: string
+}) {
+  return http.get<IPageData<BeginOneRouteInstance>>('/beginOneRouteInstance.json', {
+    ...params,
+  })
+}
+export interface EndOneRouteInstance {
   realEndTime: string
 }
-export function getRouteInstanceList(routeDefineID: string, employeeID: string) {
-  return http.get<IPageData<RouteInstance>>('/getRouteInstanceList.json', {
-    routeDefineID,
-    employeeID,
-  })
-}
-
-/** 获取路线定义列表 */
-export const getRouteDefineList = () => http.get<IPageData<RouteDefine>>('/getRouteDefineList.json')
-
-export function createOneRouteInstance(routeDefineID: string, employeeID: string, name: string) {
-  return http.get('/createOneRouteInstance.json', {
-    routeDefineID,
-    name,
-    employeeID,
-    planDate: dayjs().format('YYYY-MM-DD'),
-  })
-}
-
-export function getRouteInstanceDotList(routeDefineID: string) {
-  return http.get('/getRouteInstanceDotList.json', {
-    routeDefineID,
+export function endOneRouteInstance(params: {
+  routeInstanceID: string
+}) {
+  return http.get<IPageData<EndOneRouteInstance>>('/endOneRouteInstance.json', {
+    ...params,
   })
 }

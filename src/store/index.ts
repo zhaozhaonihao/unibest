@@ -15,5 +15,6 @@ store.use(
 
 export default store
 
+export * from './inspection'
 export * from './state'
 export * from './user'
