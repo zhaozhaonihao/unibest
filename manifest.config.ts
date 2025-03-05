@@ -115,6 +115,12 @@ export default defineManifestConfig({
       urlCheck: false,
     },
     usingComponents: true,
+    requiredPrivateInfos: ['getLocation'],
+    permission: {
+      'scope.userLocation': {
+        desc: '用于位置信息',
+      },
+    } as any,
     // __usePrivacyCheck__: true,
   },
   'mp-alipay': {

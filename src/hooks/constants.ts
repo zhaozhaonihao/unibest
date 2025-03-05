@@ -14,3 +14,10 @@ export const FILEBUCKETID = '8a2f462a850617e301851e5760810d72'
 
 /** 城管人员身份 */
 export const MAJOR_ID_CHENGGUAN = 'ff808081945dba2f0194644301250004'
+
+/** 获取附件[getObjectAttachmentList.json]  objectID 可能的取值 */
+export enum ObjectIDEnum {
+  全景图 = '8a2f462a9473d8b401947d736c0a0428',
+  处理违停车 = '8a2f462a926b2ea701926b4bb6b7003c',
+  Def = '3eba7e03c8bd4d8fa19a78075093812a',
+}

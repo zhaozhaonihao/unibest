@@ -15,7 +15,7 @@ import dayjs from 'dayjs'
 import { visualizer } from 'rollup-plugin-visualizer'
 import UnoCSS from 'unocss/vite'
 import AutoImport from 'unplugin-auto-import/vite'
-import Components from 'unplugin-vue-components/vite'
+// import Components from 'unplugin-vue-components/vite'
 import { defineConfig, loadEnv } from 'vite'
 import ViteRestart from 'vite-plugin-restart'
 import { copyNativeRes } from './vite-plugins/copyNativeRes'
@@ -78,17 +78,20 @@ export default ({ command, mode }) => {
           {
             '@tanstack/vue-query': ['useQuery'],
           },
+          {
+            'wot-design-uni': ['useMessage', 'useToast'],
+          },
         ],
         dts: 'src/types/auto-import.d.ts',
         dirs: ['src/composables', 'src/hooks', 'src/store'], // 自动导入 hooks
         eslintrc: { enabled: true },
         vueTemplate: true, // default false
       }),
-      Components({
-        deep: false,
-        globs: ['src/components/*/index.vue'],
-        dts: 'src/types/components.d.ts',
-      }),
+      // Components({
+      //   deep: false,
+      //   globs: ['src/components/*/index.vue'],
+      //   dts: 'src/types/components.d.ts',
+      // }),
 
       ViteRestart({
         // 通过这个插件，在修改vite.config.js文件则不需要重新运行也生效配置

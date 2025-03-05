@@ -16,6 +16,8 @@ onPullDownRefresh(() => {
   <wd-config-provider :theme-vars="themeVars" custom-class="h-full">
     <view class="flex flex-col h-full overflow-y-auto bg-[#f5f5f5]">
       <slot />
+
+      <wd-gap safe-area-bottom height="0" />
     </view>
     <wd-toast />
     <wd-message-box />

@@ -8,10 +8,12 @@
 </route>
 
 <script lang="ts" setup>
+import Article from '@/components/Article/index.vue'
+import Divider from '@/components/Divider/index.vue'
 import { getFocusPictureList, getNavigatorSimpleArticleList, getNoticeArticleList } from '@/service/static'
 
 import chengguan from './components/chengguan.vue'
-import SearchWrap from './components/search.vue'
+import SearchWrap from './components/SearchWrap.vue'
 
 const userStore = useUserStore()
 const { isChengguan } = storeToRefs(userStore)
@@ -51,9 +53,7 @@ function onNotice({ index, title }) {
 
     <wd-swiper :list="pictureList" autoplay :indicator="indicator" />
 
-    <wd-notice-bar type="info" prefix="notification" direction="vertical" :text="noticeArticleList" :delay="3"
-                   @click="onNotice"
-    />
+    <wd-notice-bar type="info" prefix="notification" direction="vertical" :text="noticeArticleList" :delay="3" @click="onNotice" />
 
     <chengguan v-if="isChengguan" />
     <view v-else>
@@ -61,7 +61,7 @@ function onNotice({ index, title }) {
     </view>
 
     <view class="flex flex-col gap-3 p-4 bg-white">
-      <view class="flex justify-between">
+      <view class="flex justify-between items-center">
         <view>
           <view class="i-tabler:news" />
           动态

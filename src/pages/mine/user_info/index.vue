@@ -1,9 +1,9 @@
 <route lang="json5">
-    {
-      style: {
-        navigationBarTitleText: '个人信息',
-      },
-    }
+{
+  style: {
+    navigationBarTitleText: '个人信息',
+  },
+}
 </route>
 
 <script setup lang="ts">
@@ -12,8 +12,6 @@ import { updateMyMemberAvatar, updateMyMemberPropertyID, updateMyMemberShortname
 import { useUserStore } from '@/store/user'
 import { storeToRefs } from 'pinia'
 
-const userStore = useUserStore()
-const { OneMemberDetail: userInfo } = storeToRefs(userStore)
 onLoad(() => {
   getPropertyOptions()
 })
@@ -29,13 +27,11 @@ const avatarSrc = computed(() => {
 })
 
 // 上传图片
-const { data, run: RunImageData } = useUpload({
-  fileBucketID: FILEBUCKETID,
-})
+const { data, run: RunImageData } = useUpload({ fileBucketID: FILEBUCKETID })
+
 // 点击事件，修改头像
 async function onEditAvatar() {
   console.log('点击事件，修改头像')
-  console.log(avatarSrc.value)
   const imageData = await RunImageData()
   data.value = imageData
   console.log('头像修改成功')
@@ -61,7 +57,7 @@ async function onNameConfirm() {
   const { loading, run } = useRequest(() => updateMyMemberShortname(nickname.value))
   await run()
   console.log('昵称修改成功', loading)
-  userStore.RunGetOneMemberDetail()
+  RunGetOneMemberDetail()
   namePopup.value = false
 }
 
@@ -79,16 +75,15 @@ async function getPropertyOptions() {
   propertyItems.value = CommunityAddressList.value.rows
 }
 const propertyValue = computed(() => {
-  const adderItem = propertyItems.value?.find(item => item.propertyID === userStore.OneMemberDetail.propertyID)
+  const adderItem = propertyItems.value?.find(item => item.propertyID === userInfo.value.propertyID)
   return adderItem ? adderItem.name : void 0
 })
+
 async function onPropertyChange({ value }) {
   const adderItem = propertyItems.value?.find(item => item.name === value)
-  const { data, run } = useRequest(() => updateMyMemberPropertyID(adderItem.propertyID))
+  const { run } = useRequest(() => updateMyMemberPropertyID(adderItem.propertyID))
   await run()
-  console.log('修改成功', data)
-  userStore.RunGetOneMemberDetail()
-  // 弹窗框
+  RunGetOneMemberDetail()
 }
 </script>
 

@@ -26,7 +26,7 @@ onPullDownRefresh(() => {
 
 <template>
   <wd-config-provider :theme-vars="themeVars" custom-class="h-full">
-    <view class="bg-[#f5f5f5] h-full">
+    <view class="h-full overflow-y-auto bg-[#f5f5f5]">
       <slot />
     </view>
     <wd-toast />
