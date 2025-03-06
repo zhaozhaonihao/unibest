@@ -1,8 +1,6 @@
-/* eslint-disable no-param-reassign */
-import qs from 'qs'
-import { useUserStore } from '@/store'
-import { platform } from '@/utils/platform'
 import { getEnvBaseUrl } from '@/utils'
+import { platform } from '@/utils/platform'
+import qs from 'qs'
 
 export type CustomRequestOptions = UniApp.RequestOptions & {
   query?: Record<string, any>
@@ -17,12 +15,25 @@ const baseUrl = getEnvBaseUrl()
 const httpInterceptor = {
   // 拦截前触发
   invoke(options: CustomRequestOptions) {
+    // 处理query参数
+    const userStore = useUserStore()
+    const loginSession = userStore.loginSession as ILoginSession | undefined
+
+    // 附加登录信息到 query 中（如果存在）
+    if (loginSession?.sessionID) {
+      options.query = {
+        sessionID: loginSession.sessionID,
+        ...options.query,
+      }
+    }
+
     // 接口请求支持通过 query 参数配置 queryString
     if (options.query) {
       const queryStr = qs.stringify(options.query)
       if (options.url.includes('?')) {
         options.url += `&${queryStr}`
-      } else {
+      }
+      else {
         options.url += `?${queryStr}`
       }
     }
@@ -31,8 +42,11 @@ const httpInterceptor = {
       // #ifdef H5
       // console.log(__VITE_APP_PROXY__)
       if (JSON.parse(__VITE_APP_PROXY__)) {
-        // 啥都不需要做
-      } else {
+        // 添加代理前缀
+        if (import.meta.env.VITE_APP_PROXY)
+          options.url = import.meta.env.VITE_APP_PROXY_PREFIX + options.url
+      }
+      else {
         options.url = baseUrl + options.url
       }
       // #endif
@@ -48,12 +62,6 @@ const httpInterceptor = {
     options.header = {
       platform, // 可选，与 uniapp 定义的平台一致，告诉后台来源
       ...options.header,
-    }
-    // 3. 添加 token 请求头标识
-    const userStore = useUserStore()
-    const { token } = userStore.userInfo as unknown as IUserInfo
-    if (token) {
-      options.header.Authorization = `Bearer ${token}`
     }
   },
 }

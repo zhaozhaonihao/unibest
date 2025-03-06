@@ -7,6 +7,7 @@ export default defineUniPages({
     navigationBarBackgroundColor: '#f8f8f8',
     navigationBarTextStyle: 'black',
     backgroundColor: '#FFFFFF',
+    enablePullDownRefresh: true,
   },
   easycom: {
     autoscan: true,
@@ -18,7 +19,7 @@ export default defineUniPages({
   },
   tabBar: {
     color: '#999999',
-    selectedColor: '#018d71',
+    selectedColor: '#1e7aff',
     backgroundColor: '#F8F8F8',
     borderStyle: 'black',
     height: '50px',
@@ -27,16 +28,16 @@ export default defineUniPages({
     spacing: '3px',
     list: [
       {
-        iconPath: 'static/tabbar/home.png',
-        selectedIconPath: 'static/tabbar/homeHL.png',
-        pagePath: 'pages/index/index',
+        iconPath: 'static/images/tabbar/tab_home.png',
+        selectedIconPath: 'static/images/tabbar/tab_home_hl.png',
+        pagePath: 'pages/home/index',
         text: '首页',
       },
       {
-        iconPath: 'static/tabbar/example.png',
-        selectedIconPath: 'static/tabbar/exampleHL.png',
-        pagePath: 'pages/about/about',
-        text: '关于',
+        iconPath: 'static/images/tabbar/tab_mine.png',
+        selectedIconPath: 'static/images/tabbar/tab_mine_hl.png',
+        pagePath: 'pages/mine/index',
+        text: '我的',
       },
     ],
   },
