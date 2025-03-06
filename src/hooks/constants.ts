@@ -30,8 +30,23 @@ export const OUTTOKEN = 'F5BBFA3F7B29D44D8C860F262A848697'
 /** 城管人员身份 */
 export const MAJOR_ID_CHENGGUAN = 'ff808081945dba2f0194644301250004'
 
-/** 获取附件[getArticleSimpleDetail.json]  outToken 可能的取值 */
-export enum outTokenEnum {
+/** 获取文章[getArticleList.json]  contentType 可能的取值 */
+export enum ContentTypeEnum {
+  系统文章 = 1,
+  公告通知 = 2,
+  文档库 = 3,
+  公司简介 = 4,
+  案例 = 5,
+  动态 = 6,
+  资料 = 7,
+  知识库 = 8,
+  在线帮助 = 90,
+  新功能提示 = 91,
+  一般文章 = 99,
+}
+
+/** 获取文章内容[getArticleSimpleDetail.json]  outToken 可能的取值 */
+export enum OutTokenEnum {
   关于我们 = 'ff80808194077da80194157112e40008',
   隐私协议 = 'ff8080819445fc3901944f2272d90000',
   注册协议 = 'ff80808194077da801941571b0ec000b',

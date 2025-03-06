@@ -1,83 +1,80 @@
-/* eslint-disable */
-// @ts-ignore
+export interface ApiResponse {
+  code?: number
+  type?: string
+  message?: string
+}
 
-export type ApiResponse = {
-  code?: number;
-  type?: string;
-  message?: string;
-};
+export interface Category {
+  id?: number
+  name?: string
+}
 
-export type Category = {
-  id?: number;
-  name?: string;
-};
-
-export type deleteOrderParams = {
+export interface deleteOrderParams {
   /** ID of the order that needs to be deleted */
-  orderId: number;
-};
+  orderId: number
+}
 
-export type deletePetParams = {
+export interface deletePetParams {
   /** Pet id to delete */
-  petId: number;
-};
+  petId: number
+}
 
-export type deleteUserParams = {
+export interface deleteUserParams {
   /** The name that needs to be deleted */
-  username: string;
-};
+  username: string
+}
 
-export type findPetsByStatusParams = {
+export interface findPetsByStatusParams {
   /** Status values that need to be considered for filter */
-  status: ('available' | 'pending' | 'sold')[];
-};
+  status: ('available' | 'pending' | 'sold')[]
+}
 
-export type findPetsByTagsParams = {
+export interface findPetsByTagsParams {
   /** Tags to filter by */
-  tags: string[];
-};
+  tags: string[]
+}
 
-export type getOrderByIdParams = {
+export interface getOrderByIdParams {
   /** ID of pet that needs to be fetched */
-  orderId: number;
-};
+  orderId: number
+}
 
-export type getPetByIdParams = {
+export interface getPetByIdParams {
   /** ID of pet to return */
-  petId: number;
-};
+  petId: number
+}
 
-export type getUserByNameParams = {
+export interface getUserByNameParams {
   /** The name that needs to be fetched. Use user1 for testing.  */
-  username: string;
-};
+  username: string
+}
 
-export type loginUserParams = {
+export interface loginUserParams {
   /** The user name for login */
-  username: string;
+  username: string
   /** The password for login in clear text */
-  password: string;
-};
+  password: string
+}
 
-export type Order = {
-  id?: number;
-  petId?: number;
-  quantity?: number;
-  shipDate?: string;
+export interface Order {
+  id?: number
+  petId?: number
+  quantity?: number
+  shipDate?: string
   /** Order Status */
-  status?: 'placed' | 'approved' | 'delivered';
-  complete?: boolean;
-};
+  status?: 'placed' | 'approved' | 'delivered'
+  complete?: boolean
+}
 
-export type Pet = {
-  id?: number;
-  category?: Category;
-  name: string;
-  photoUrls: string[];
-  tags?: Tag[];
+export interface Pet {
+  id?: number
+  category?: Category
+  name: string
+  photoUrls: string[]
+  tags?: Tag[]
   /** pet status in the store */
-  status?: 'available' | 'pending' | 'sold';
-};
+  status?: 'available' | 'pending' | 'sold'
+}
 
 export enum StatusEnum {
   available = 'available',
@@ -85,7 +82,7 @@ export enum StatusEnum {
   sold = 'sold',
 }
 
-export type IStatusEnum = keyof typeof StatusEnum;
+export type IStatusEnum = keyof typeof StatusEnum
 
 export enum StatusEnum2 {
   placed = 'placed',
@@ -93,36 +90,36 @@ export enum StatusEnum2 {
   delivered = 'delivered',
 }
 
-export type IStatusEnum2 = keyof typeof StatusEnum2;
+export type IStatusEnum2 = keyof typeof StatusEnum2
 
-export type Tag = {
-  id?: number;
-  name?: string;
-};
+export interface Tag {
+  id?: number
+  name?: string
+}
 
-export type updatePetWithFormParams = {
+export interface updatePetWithFormParams {
   /** ID of pet that needs to be updated */
-  petId: number;
-};
+  petId: number
+}
 
-export type updateUserParams = {
+export interface updateUserParams {
   /** name that need to be updated */
-  username: string;
-};
+  username: string
+}
 
-export type uploadFileParams = {
+export interface uploadFileParams {
   /** ID of pet to update */
-  petId: number;
-};
+  petId: number
+}
 
-export type User = {
-  id?: number;
-  username?: string;
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-  password?: string;
-  phone?: string;
+export interface User {
+  id?: number
+  username?: string
+  firstName?: string
+  lastName?: string
+  email?: string
+  password?: string
+  phone?: string
   /** User Status */
-  userStatus?: number;
-};
+  userStatus?: number
+}

@@ -4,6 +4,8 @@ import { createPersistedState } from 'pinia-plugin-persistedstate' // 数据持�
 const store = createPinia()
 store.use(
   createPersistedState({
+    key: id => `${import.meta.env.VITE_APP_TITLE}__${id}`,
+
     storage: {
       getItem: uni.getStorageSync,
       setItem: uni.setStorageSync,
@@ -12,6 +14,3 @@ store.use(
 )
 
 export default store
-
-// 模块统一导出
-export * from './user'

@@ -1,8 +1,8 @@
 <script setup lang="ts">
-const { id, title = '默认标题', imageSrc = '', desc = '默认描述', time = '2000-01-01' } = defineProps<{
+const { id, title = '默认标题', src, desc = '默认描述', time = '2000-01-01' } = defineProps<{
   id: string
   title?: string
-  imageSrc?: string
+  src?: string
   desc?: string
   time?: string
 }>()
@@ -15,14 +15,16 @@ const hasError = ref(false)
 <template>
   <view class="flex items-center gap-4 p-4 h-[100px]" @click="emits('click', id)">
     <slot name="image">
-      <wd-img
-        v-if="!hasError"
-        :src="imageSrc"
-        :width="80"
-        mode="widthFix"
-        @error="hasError = true"
-      />
-      <view v-else class="w-[80px] h-[80px] i-tabler:photo" />
+      <view class="w-[80px] h-[80px] bg-gray-1 flex items-center justify-center rounded-2">
+        <wd-img
+          v-if="src && !hasError"
+          :src="src"
+          :width="80"
+          mode="widthFix"
+          @error="hasError = true"
+        />
+        <view v-else class="i-tabler:photo text-5xl text-gray-5" />
+      </view>
     </slot>
 
     <view class="flex-1 flex flex-col justify-between h-full overflow-hidden">
