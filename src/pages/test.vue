@@ -1,41 +1,98 @@
-<route lang="json5">
+<route lang="json5" type="page">
 {
+  layout: 'default',
   style: {
-    navigationBarTitleText: '测试页面',
+    navigationBarTitleText: '测试',
   },
 }
 </route>
 
-<script setup lang="ts">
-const list = computed(() => {
-  return [{ title: 'A出口' }, { title: 'B出口' }, { title: 'C出口' }, { title: '泗泾大润发停车场' }]
-})
+<script lang="ts" setup>
+import { ref } from 'vue'
 
-// const { data } = useRequest(() => getRouteInstanceList('bc10dcf9302c4038952973e7729c6b69'), {
-//   immediate: true,
-// })
-// console.log(data)
+const src = ref<string>('')
+const imgSrc = ref<string>('')
+const show = ref<boolean>(false)
 
-// const noticeArticleList = computed(() => NoticeArticleList.value?.rows.map((i) => i.title))
+function upload() {
+  uni.chooseImage({
+    count: 1,
+    success: (res) => {
+      const tempFilePaths = res.tempFilePaths[0]
+      src.value = tempFilePaths
+      show.value = true
+    },
+  })
+}
+function handleConfirm(event: any) {
+  const { tempFilePath } = event
+  imgSrc.value = tempFilePath
+}
+function imgLoaderror(res: any) {
+  console.log('加载失败', res)
+}
+function imgLoaded(res: any) {
+  console.log('加载成功', res)
+}
+function handleCancel(event: any) {
+  console.log('取消', event)
+}
 </script>
 
 <template>
-  <view class="h-full flex flex-col">
-    <view class="flex flex-col gap-4 p-4 bg-white">
-      <view class="text-6 text-center font-bold">
-        您今天巡视的路线是：泗泾地铁站
-      </view>
-      <view class="text-4">
-        您需要在10分钟左右巡视完成下面的点位：
-      </view>
-      <view v-for="(item, index) in list" :key="item.title" class="text-4">
-        {{ index + 1 }}、{{ item.title }}
-      </view>
+  <wd-img-cropper
+    v-model="show"
+    :img-src="src"
+    @confirm="handleConfirm"
+    @cancel="handleCancel"
+    @imgloaderror="imgLoaderror"
+    @imgloaded="imgLoaded"
+  />
+  <view class="profile">
+    <view v-if="!imgSrc" class="img" @click="upload">
+      <wd-icon name="fill-camera" custom-class="img-icon" />
     </view>
-    <view class="flex-1" />
-    <wd-button custom-class="w-full mt-auto!" block>
-      开始巡视
-    </wd-button>
+    <wd-img v-if="imgSrc" round width="200px" height="200px" :src="imgSrc" mode="aspectFit" custom-class="profile-img" @click="upload" />
+    <view style="font-size: 14px">
+      点击上传头像
+    </view>
   </view>
-  <wd-gap safe-area-bottom height="0" />
 </template>
+
+  <style lang="scss" scoped>
+  .wot-theme-dark {
+  :deep(.profile-img) {
+    border: 1px solid red;
+  }
+  .img {
+    background-color: blue;
+  }
+}
+
+.profile {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+  height: 300px;
+}
+
+:deep(.profile-img) {
+  border: 1px solid rgba(0, 0, 0, 0.09);
+}
+.img {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.04);
+  position: relative;
+}
+:deep(.img-icon) {
+  font-size: 60px;
+  color: #fff;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+</style>

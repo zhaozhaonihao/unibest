@@ -90,6 +90,8 @@ module.exports = antfuPromise.then(antfu =>
 
   }, {
     files: ['**/*.vue'], // 仅对 Vue 文件应用这些规则
-    rules: {},
+    rules: {
+      'vue/first-attribute-linebreak': 'off', // 完全禁用该规则
+    },
   }),
 )

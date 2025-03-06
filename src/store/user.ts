@@ -1,6 +1,5 @@
 import {
   bandingEmployeeWithPhone,
-
   getMyCompanyAndEmployeeList,
   getMyMemberMajorList,
   getOneMemberDetail,
@@ -10,8 +9,6 @@ import {
 } from '@/service/static/login'
 
 import dayjs from 'dayjs'
-
-import { defineStore } from 'pinia'
 
 export const useUserStore = defineStore(
   'user',
@@ -25,6 +22,7 @@ export const useUserStore = defineStore(
           success: async ({ code }) => {
             const { run } = useRequest(() => getWeiXinAppOpenId(code))
             openID.value = (await run()).openID
+            await onLogin()
           },
         })
         // #endif
@@ -66,7 +64,7 @@ export const useUserStore = defineStore(
       }
     }
 
-    const isLogined = computed(() => loginSession.value.memberID && loginSession.value.sessionID)
+    const isLogined = computed(() => loginSession.value?.memberID && loginSession.value?.sessionID)
     const isLoginExpired = computed(() => {
       return !loginSession.value || dayjs().diff(loginSession.value.time, 'minute') > 60
     })
@@ -74,6 +72,11 @@ export const useUserStore = defineStore(
     const isChengguan = computed(() => {
       return MyMajorList.value?.rows.some(item => item.majorID === MAJOR_ID_CHENGGUAN)
     })
+
+    const employeeID = computed(() => MyCompanyAndEmployeeList.value?.[0]?.employeeID ?? '')
+
+    // 头像
+    const avatarURL = computed(() => OneMemberDetail.value.avatarURL || 'https://imgs.699pic.com/images/500/465/562.jpg!list1x.v2')
 
     return {
       openID,
@@ -91,6 +94,9 @@ export const useUserStore = defineStore(
       isLogined,
       isLoginExpired,
       isChengguan,
+      employeeID,
+
+      avatarURL,
     }
   },
   {

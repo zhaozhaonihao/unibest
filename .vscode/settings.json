@@ -1,39 +1,50 @@
 {
-  "terminal.integrated.minimumContrastRatio": 1,
-  "terminal.integrated.fontFamily": "Cascadia Code, Consolas, 'Courier New', monospace",
-  "terminal.integrated.shellIntegration.enabled": true,
-  // ✅ 保存时自动格式化（使用 ESLint）
-  "editor.formatOnSave": true,
-  // ✅ 开启自动修复（仅保留 ESLint）
+  // 禁用 prettier 默认格式化程序，改用 eslint
+  "prettier.enable": false,
+  "editor.formatOnSave": false,
+  // 自动修复
   "editor.codeActionsOnSave": {
-    "source.fixAll": "explicit", // 允许代码修复
-    "source.fixAll.eslint": "explicit" // 只允许 ESLint 自动修复
+    "source.fixAll.eslint": "explicit",
+    "source.organizeImports": "never"
   },
-  // // ✅ 关闭 VS Code 内置的 CSS / SCSS / LESS 语法检查，避免与 ESLint 冲突
-  // "css.validate": false,
-  // "less.validate": false,
-  // "scss.validate": false,
-  // // ✅ Shell 脚本格式化工具（用于 `.sh`、`.env` 文件）
-  // "[shellscript]": {
-  //   "editor.defaultFormatter": "foxundermoon.shell-format" // 使用 `shell-format` 作为默认格式化工具
-  // },
-  // "[dotenv]": {
-  //   "editor.defaultFormatter": "foxundermoon.shell-format" // `.env` 文件也使用 `shell-format`
-  // },
-  // // ✅ TypeScript 文件的默认格式化工具
-  // "[typescript]": {
-  //   "editor.defaultFormatter": "vscode.typescript-language-features" // 使用 VS Code 内置 TypeScript 语言服务格式化
-  // },
-  // // ✅ JSONC（带注释的 JSON 文件）使用 VS Code 默认格式化
-  // "[jsonc]": {
-  //   "editor.defaultFormatter": "esbenp.prettier-vscode" // ⚠️ 你已去掉 Prettier，建议改用 `vscode.json-language-features`
-  // },
-  // ✅ 语言文件的关联配置
-  "files.associations": {
-    "pages.json": "jsonc", // 让 VS Code 解析 `pages.json` 为 JSONC（支持注释）
-    "manifest.json": "jsonc" // 让 `manifest.json` 也支持注释
-  },
-  // ✅ TypeScript 语言服务路径（让 VS Code 使用项目中的 TypeScript 版本）
+  // 在 IDE 中隐藏样式规则，但仍可自动修复它们
+  "eslint.rules.customizations": [
+    { "rule": "style/*", "severity": "off", "fixable": true },
+    { "rule": "format/*", "severity": "off", "fixable": true },
+    { "rule": "*-indent", "severity": "off", "fixable": true },
+    { "rule": "*-spacing", "severity": "off", "fixable": true },
+    { "rule": "*-spaces", "severity": "off", "fixable": true },
+    { "rule": "*-order", "severity": "off", "fixable": true },
+    { "rule": "*-dangle", "severity": "off", "fixable": true },
+    { "rule": "*-newline", "severity": "off", "fixable": true },
+    { "rule": "*quotes", "severity": "off", "fixable": true },
+    { "rule": "*semi", "severity": "off", "fixable": true }
+  ],
+  // 为所有支持的语言启用 eslint
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact",
+    "vue",
+    "html",
+    "markdown",
+    "json",
+    "jsonc",
+    "yaml",
+    "toml",
+    "xml",
+    "gql",
+    "graphql",
+    "astro",
+    "svelte",
+    "css",
+    "less",
+    "scss",
+    "pcss",
+    "postcss"
+  ],
+
   "typescript.tsdk": "node_modules\\typescript\\lib",
   // ✅ 资源管理器文件嵌套规则（优化 VS Code 侧边栏文件显示）
   "explorer.fileNesting.patterns": {

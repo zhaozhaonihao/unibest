@@ -3,9 +3,7 @@
     "navigationStyle": "default",
     "navigationBarTitleText": "unibest",
     "navigationBarBackgroundColor": "#f8f8f8",
-    "navigationBarTextStyle": "black",
-    "backgroundColor": "#FFFFFF",
-    "enablePullDownRefresh": true
+    "navigationBarTextStyle": "black"
   },
   "easycom": {
     "autoscan": true,
@@ -44,84 +42,6 @@
       "type": "home",
       "style": {
         "navigationBarTitleText": "首页"
-      }
-    },
-    {
-      "path": "pages/test",
-      "type": "page",
-      "style": {
-        "navigationBarTitleText": "测试页面"
-      }
-    },
-    {
-      "path": "pages/find/index",
-      "type": "find",
-      "layout": "default",
-      "style": {
-        "navigationBarTitleText": "搜索"
-      }
-    },
-    {
-      "path": "pages/inspection/dot",
-      "type": "page",
-      "style": {
-        "navigationBarTitleText": "巡视点位"
-      }
-    },
-    {
-      "path": "pages/inspection/index copy",
-      "type": "page",
-      "style": {
-        "navigationBarTitleText": "巡视"
-      }
-    },
-    {
-      "path": "pages/inspection/index",
-      "type": "page",
-      "style": {
-        "navigationBarTitleText": "巡视列表"
-      }
-    },
-    {
-      "path": "pages/inspection/instanceList",
-      "type": "page",
-      "style": {
-        "navigationBarTitleText": "巡视列表"
-      }
-    },
-    {
-      "path": "pages/login/index",
-      "type": "page",
-      "style": {
-        "navigationBarTitleText": "授权登录"
-      }
-    },
-    {
-      "path": "pages/mine/index",
-      "type": "page",
-      "style": {
-        "navigationBarTitleText": "个人中心"
-      }
-    },
-    {
-      "path": "pages/move/add",
-      "type": "page",
-      "style": {
-        "navigationBarTitleText": "开始挪车"
-      }
-    },
-    {
-      "path": "pages/move/index",
-      "type": "page",
-      "style": {
-        "navigationBarTitleText": "挪车"
-      }
-    },
-    {
-      "path": "pages/mine/user_info/index",
-      "type": "page",
-      "style": {
-        "navigationBarTitleText": "个人信息"
       }
     }
   ],

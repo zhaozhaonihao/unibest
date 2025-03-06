@@ -6,16 +6,12 @@
 interface NavigateToOptions {
   url: "/pages/home/index" |
        "/pages/test" |
-       "/pages/find/index" |
+       "/pages/about/about" |
        "/pages/inspection/dot" |
        "/pages/inspection/index copy" |
        "/pages/inspection/index" |
-       "/pages/inspection/instanceList" |
        "/pages/login/index" |
-       "/pages/mine/index" |
-       "/pages/move/add" |
-       "/pages/move/index" |
-       "/pages/mine/user_info/index";
+       "/pages/mine/index";
 }
 interface RedirectToOptions extends NavigateToOptions {}
 
