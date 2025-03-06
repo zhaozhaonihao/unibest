@@ -2,7 +2,7 @@
 {
   layout: 'tabbar',
   style: {
-    navigationBarTitleText: '个人中心',
+    navigationBarTitleText: '我的',
     navigationBarBackgroundColor: '#f1f9ff',
   },
 }
