@@ -15,7 +15,7 @@ export interface News {
   faceImage: string
   title: string
   description: string
-  createdTimeStr: Date
+  createdTimeStr: string
 }
 
 /** 物业小区 */

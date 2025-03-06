@@ -1,5 +1,30 @@
 import type { ObjectIDEnum } from '@/hooks/constants'
 import { http } from '@/utils/http'
+
+interface ApiArticleDto {
+  apiArticleDto: {
+    articleID: string
+    name: string
+
+    /** 文章标题 */
+    title: string
+    /** 首张图片 */
+    faceImage: string | null
+    /** html 内容块 */
+    contentText: string | null
+    /** 日期 */
+    createdDateStr: string
+  }
+}
+export function getArticleSimpleDetail(params: {
+  articleID: string
+}) {
+  return http.get<ApiArticleDto>('/getArticleSimpleDetail.json', {
+    outToken: OUTTOKEN,
+    ...params,
+  })
+}
+
 /**
  * 获取指定对象的附件列表
  *

@@ -1,4 +1,4 @@
-import { getEmployeeList } from '@/service/static/other'
+import { getArticleSimpleDetail, getEmployeeList } from '@/service/static/other'
 
 const InitLocationInfo: UniApp.GetLocationSuccess = {
   longitude: null,
@@ -31,6 +31,15 @@ export const useOtherStore = defineStore(
       })
     }
 
+    // 文章详情
+    const articleID = ref<string>('')
+    const {
+      data: ArticleDetail,
+      run: RunGetArticleDetail,
+    } = useRequest(() => getArticleSimpleDetail({
+      articleID: articleID.value,
+    }))
+
     // 公司成员
     const { data: EmployeeList, run: RunGetEmployeeList } = useRequest(() => getEmployeeList())
     const handleEmployee = ref<string | undefined>()
@@ -51,6 +60,10 @@ export const useOtherStore = defineStore(
     return {
       locationInfo,
       GetLocation,
+
+      articleID,
+      ArticleDetail,
+      RunGetArticleDetail,
 
       EmployeeList,
       employeeList,

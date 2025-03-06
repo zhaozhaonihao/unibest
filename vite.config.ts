@@ -38,7 +38,7 @@ export default ({ command, mode }) => {
   console.log('UNI_PLATFORM -> ', UNI_PLATFORM) // 得到 mp-weixin, h5, app 等
 
   const env = loadEnv(mode, path.resolve(process.cwd(), 'env'))
-  const { VITE_APP_PORT, VITE_SERVER_BASEURL, VITE_DELETE_CONSOLE, VITE_SHOW_SOURCEMAP, VITE_APP_PROXY, VITE_APP_PROXY_PREFIX } = env
+  const { VITE_SERVER_PORT, VITE_SERVER_BASEURL, VITE_DELETE_CONSOLE, VITE_SHOW_SOURCEMAP, VITE_APP_PROXY, VITE_APP_PROXY_PREFIX } = env
   console.log('环境变量 env -> ', env)
 
   return defineConfig({
@@ -140,7 +140,7 @@ export default ({ command, mode }) => {
     server: {
       host: '0.0.0.0',
       hmr: true,
-      port: Number.parseInt(VITE_APP_PORT, 10),
+      port: Number.parseInt(VITE_SERVER_PORT, 10),
       // 仅 H5 端生效，其他端不生效（其他端走build，不走devServer)
       proxy: JSON.parse(VITE_APP_PROXY)
         ? {

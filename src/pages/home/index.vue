@@ -1,6 +1,6 @@
-<route lang="json5">
+<route lang="json5" type="home">
 {
-  type: 'home',
+  layout: 'tabbar',
   style: {
     navigationBarTitleText: '首页',
   },
@@ -10,13 +10,12 @@
 <script lang="ts" setup>
 import Article from '@/components/Article/index.vue'
 import Divider from '@/components/Divider/index.vue'
-import { getFocusPictureList, getNavigatorSimpleArticleList, getNoticeArticleList } from '@/service/static'
 
+import { getFocusPictureList, getNavigatorSimpleArticleList, getNoticeArticleList } from '@/service/static'
 import chengguan from './components/chengguan.vue'
 import SearchWrap from './components/SearchWrap.vue'
 
-const userStore = useUserStore()
-const { isChengguan } = storeToRefs(userStore)
+const { isChengguan } = storeToRefs(useUserStore())
 
 // 轮播图
 const { data: PictureList } = useRequest(() => getFocusPictureList(), { immediate: true })
@@ -29,7 +28,19 @@ const noticeArticleList = computed(() => NoticeArticleList.value?.rows.map(i => 
 
 // 新闻3条
 const { data: NewsArticleList } = useRequest(() => getNavigatorSimpleArticleList(NAVIGATORID, 3), { immediate: true })
-const newsArticleList = computed(() => NewsArticleList.value?.rows)
+const newsArticleList = computed(() => {
+  return NewsArticleList.value?.rows?.map((i) => {
+    return {
+      id: i.articleID,
+      title: i.title,
+      imageSrc: i.faceImage,
+      desc: i.description,
+      time: i.createdTimeStr,
+    }
+  })
+})
+
+const { articleID } = storeToRefs(useOtherStore())
 
 function onSearch() {
   // uni.navigateTo({ url: '/pages/home/search/index' })
@@ -45,12 +56,17 @@ function onMessage() {
 function onNotice({ index, title }) {
   console.log('onNotice', { index, title }, NoticeArticleList.value.rows?.[index])
 }
+
+function onClick(id: string) {
+  articleID.value = id
+  uni.navigateTo({ url: '/pages/ArticleDetail' })
+}
 </script>
 
 <template>
-  <view class="flex flex-col gap-3 p-4">
-    <SearchWrap @search="onSearch" @scan="onScan" @message="onMessage" />
+  <SearchWrap @search="onSearch" @scan="onScan" @message="onMessage" />
 
+  <view class="flex-1 overflow-y-auto flex flex-col gap-2 p-4">
     <wd-swiper :list="pictureList" autoplay :indicator="indicator" />
 
     <wd-notice-bar type="info" prefix="notification" direction="vertical" :text="noticeArticleList" :delay="3" @click="onNotice" />
@@ -72,31 +88,11 @@ function onNotice({ index, title }) {
         </view>
       </view>
 
-      <view v-for="article in newsArticleList" :key="article.articleID" class="flex flex-col gap-3">
+      <view v-for="news in newsArticleList" :key="news.id" class="flex flex-col gap-3">
         <Divider />
 
-        <Article :article="article" />
+        <Article v-bind="news" @click="onClick" />
       </view>
     </view>
   </view>
 </template>
-
-<style lang="scss" scoped>
-.custom-cell .wd-cell__title {
-  max-width: 200px;
-  /* 限制标题宽度，根据实际情况调整 */
-  overflow: hidden;
-  text-overflow: ellipsis;
-  /* 省略号 */
-  white-space: nowrap;
-  /* 防止换行 */
-}
-
-.custom-cell .wd-cell__label {
-  line-height: 1.5;
-  /* 适当增加行距，提高可读性 */
-  word-wrap: break-word;
-  white-space: normal;
-  /* 允许换行 */
-}
-</style>
