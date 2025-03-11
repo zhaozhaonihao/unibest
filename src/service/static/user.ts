@@ -1,5 +1,11 @@
 import { http } from '@/utils/http'
 
+interface updateFileObj {
+  filesID: string
+  filesURL: string
+  url: string
+}
+
 /** 更新居住小区 */
 function updateMyMemberPropertyID(propertyID: string) {
   return http.get('/updateMyMemberPropertyID', { propertyID })
@@ -27,6 +33,7 @@ function uploadOneFileToQiniu(fileBucketID: string) {
 
 export {
   getPropertyList,
+  updateFileObj,
   updateMyMemberAvatar,
   updateMyMemberPropertyID,
   updateMyMemberShortname,
