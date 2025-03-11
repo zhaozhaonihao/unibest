@@ -2,7 +2,7 @@ import { http } from '@/utils/http'
 
 /** 登录授权页面 获取手机号 */
 export function getWeixinMemberPhone(encryptedData: string, iv: string, code: string) {
-  return http.get<IPageData<{ phoneNumber: string }>>('/getWeixinMemberPhone.json', {
+  return http.get<{ phoneNumber: string }>('/getWeixinMemberPhone.json', {
     appID: APPID,
     encryptedData,
     iv,
@@ -62,4 +62,23 @@ export interface EmployeeWithPhone {
 }
 export function bandingEmployeeWithPhone(phone: string) {
   return http.get<EmployeeWithPhone>('/bandingEmployeeWithPhone.json', { phone })
+}
+/** 通过手机号查询是否存在用户 */
+export function searchMemberByPhone(phone: string) {
+  return http.get<{ phone: string }>('/searchMemberByPhone.json', { applicationID: APPLICATIONID, phone })
+}
+
+/** 注册 */
+export function memberPhoneRegister(phoneNumber: string, nickname: string, openID: string) {
+  return http.get<ILoginSession>('/memberPhoneRegister.json', {
+    deviceID: DEVICEID,
+    siteID: SITEID,
+    phone: phoneNumber,
+    loginName: nickname,
+    name: nickname,
+    shortName: nickname,
+    verifyCode: '999999',
+    password: '111111',
+    openID,
+  })
 }

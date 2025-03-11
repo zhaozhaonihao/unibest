@@ -40,9 +40,10 @@ function onUserInfo() {
   uni.navigateTo({ url: '/pages/mine/info' })
 }
 
+// 登录模块
 // 用户登录
-function onLogin() {
-  uni.navigateTo({ url: '/pages/login/login_apply/index' })
+function toLoginPage() {
+  uni.navigateTo({ url: '/pages/login/index' })
 }
 </script>
 
@@ -67,7 +68,7 @@ function onLogin() {
         <view class="text-xl font-bold">
           未登录
         </view>
-        <wd-button custom-class="ml-auto! rounded!" @click="onLogin">
+        <wd-button custom-class="ml-auto! rounded!" @click="toLoginPage">
           授权登录
         </wd-button>
       </template>
