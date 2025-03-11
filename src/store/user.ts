@@ -5,6 +5,8 @@ import {
   getOneMemberDetail,
   getWeiXinAppOpenId,
 
+  memberPhoneRegister,
+
   openIDorUnionIDFastLogin,
 } from '@/service/static/login'
 
@@ -28,7 +30,7 @@ export const useUserStore = defineStore(
         // #endif
         // #ifdef H5
         console.log('🐛 发起网络请求获取 openID ......')
-        openID.value = 'oMtfx6zNY_ULesEzXWbFkI0iHELo'
+        openID.value = 'oMtfx62PLTdgQgjO98eFa789CAx0'
         // #endif
       }
 
@@ -38,9 +40,8 @@ export const useUserStore = defineStore(
     const { data: loginSession, run: RunGetIDFastLogin } = useRequest(() => openIDorUnionIDFastLogin(openID.value))
     const { data: MyMajorList, run: RunGetMyMajor } = useRequest(() => getMyMemberMajorList())
     const { data: MyCompanyAndEmployeeList, run: RunGetMyCompanyAndEmployee } = useRequest(() => getMyCompanyAndEmployeeList())
-    const { data: OneMemberDetail, run: RunGetOneMemberDetail } = useRequest(() => getOneMemberDetail(loginSession.value.memberID))
+    const { data: OneMemberDetail, run: RunGetOneMemberDetail } = useRequest(() => getOneMemberDetail(loginSession.value?.memberID))
     const { data: BandingEmployee, run: RunBandingEmployee } = useRequest(() => bandingEmployeeWithPhone(OneMemberDetail.value?.phone))
-
     const onLogin = async () => {
       if (openID.value) {
         // 静态登录
@@ -72,11 +73,31 @@ export const useUserStore = defineStore(
     const isChengguan = computed(() => {
       return MyMajorList.value?.rows.some(item => item.majorID === MAJOR_ID_CHENGGUAN)
     })
+    const onRegister = async (phoneNumber: string, nickname: string) => {
+      const { data: registerSession, run: RunPhoneRegister } = useRequest(() => memberPhoneRegister(phoneNumber, nickname, openID.value))
+      await RunPhoneRegister()
+      if (!loginSession.value) {
+        loginSession.value = { ...registerSession.value, time: dayjs() }
+      }
+
+      // 获取身份列表
+      await RunGetMyMajor()
+      // 获取会员信息
+      await RunGetOneMemberDetail()
+
+      if (isChengguan.value) {
+        await RunGetMyCompanyAndEmployee()
+
+        if (!MyCompanyAndEmployeeList.value.length) {
+          await RunBandingEmployee()
+        }
+      }
+    }
 
     const employeeID = computed(() => MyCompanyAndEmployeeList.value?.[0]?.employeeID ?? '')
 
     // 头像
-    const avatarURL = computed(() => OneMemberDetail.value.avatarURL || 'https://imgs.699pic.com/images/500/465/562.jpg!list1x.v2')
+    const avatarURL = computed(() => OneMemberDetail.value?.avatarURL || 'https://imgs.699pic.com/images/500/465/562.jpg!list1x.v2')
 
     return {
       openID,
@@ -97,6 +118,8 @@ export const useUserStore = defineStore(
       employeeID,
 
       avatarURL,
+
+      onRegister,
     }
   },
   {

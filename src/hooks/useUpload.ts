@@ -3,7 +3,7 @@ import { getEnvBaseUploadUrl } from '@/utils'
 
 const VITE_UPLOAD_BASEURL = `${getEnvBaseUploadUrl()}`
 
-function uploadFile<T>({ tempFilePath, formData }) {
+export function uploadFile<T>({ tempFilePath, formData }) {
   return new Promise((resolve, reject) => {
     uni.uploadFile({
       url: VITE_UPLOAD_BASEURL,
