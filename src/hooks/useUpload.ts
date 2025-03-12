@@ -94,3 +94,45 @@ export default function useUpload<T = IUploadData>(formData: Record<string, any>
 
   return { loading, error, data, run }
 }
+
+/**
+ * 裁剪图片上传(需要配合wd-img-cropper组件使用)
+ * @param formData formData 额外传递给后台的数据，如{name: '菲鸽'}。
+ * @returns 返回一个对象{loading, error, data, run}，包含请求的加载状态、错误信息、响应数据和手动触发请求的函数。
+ */
+export function useCropper<T = IUploadData>(formData: Record<string, any> = {}) {
+  // const cropperImgUrl = ref('')
+  const loading = ref(false)
+  const error = ref(false)
+  const data = ref<T>(null)
+  // wd-img-cropper组件参数，是否显示组件
+  const cropperShow = ref(false)
+  // 裁剪后照片临时地址
+  const cropperImgUrl = ref('')
+
+  // 选择图片、裁剪图片、上传图片
+  const run = async () => {
+    loading.value = true
+    try {
+      const tempFilePath = await chooseImage()
+      // 选择图片
+      if (!tempFilePath)
+        throw new Error('图片选择失败')
+      // 裁剪图片
+      cropperImgUrl.value = tempFilePath
+      cropperShow.value = true
+      // 上传图片
+      const result = await uploadFile<T>({ tempFilePath, formData })
+      data.value = result as UnwrapRef<T>
+      error.value = false
+    }
+    catch (err) {
+      error.value = err
+    }
+    finally {
+      loading.value = false
+    }
+  }
+
+  return { loading, error, data, run, cropperImgUrl, cropperShow }
+}

@@ -8,6 +8,7 @@
 </route>
 
 <script setup lang="ts">
+import { useCropper } from '@/hooks/useUpload'
 import { getPropertyList } from '@/service/static'
 import { updateMyMemberAvatar, updateMyMemberPropertyID, updateMyMemberShortname } from '@/service/static/user'
 
@@ -17,11 +18,22 @@ const { RunGetOneMemberDetail } = useUserStore()
 onLoad(() => RunGetPropertyList())
 
 // 头像
-const { run: RunUpload } = useUpload({ fileBucketID: FILEBUCKETID })
-async function onEditAvatar() {
-  const ImageData = await RunUpload()
-  ImageData && await updateMyMemberAvatar(ImageData.filesURL)
-  RunGetOneMemberDetail()
+// 头像裁剪
+const { data, run, cropperShow, cropperImgUrl } = useCropper({ fileBucketID: FILEBUCKETID })
+
+async function chooseAvatar() {
+  await run()
+  data.value && await updateMyMemberAvatar(data.value.filesURL)
+  await RunGetOneMemberDetail()
+}
+
+function handleConfirm(event) {
+  const { tempFilePath } = event
+  cropperImgUrl.value = tempFilePath
+}
+
+function handleCancel() {
+  cropperImgUrl.value = ''
 }
 
 // 昵称
@@ -58,8 +70,14 @@ async function onPropertyChange() {
 </script>
 
 <template>
+  <wd-img-cropper
+    v-model="cropperShow"
+    :img-src="cropperImgUrl"
+    @confirm="handleConfirm"
+    @cancel="handleCancel"
+  />
   <wd-cell-group border>
-    <wd-cell title="头像" is-link :center="true" @click="onEditAvatar">
+    <wd-cell title="头像" is-link :center="true" @click="chooseAvatar">
       <template #default>
         <wd-img round :src="avatarURL" :width="50" :height="50" />
       </template>
