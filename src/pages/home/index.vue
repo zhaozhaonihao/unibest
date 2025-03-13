@@ -43,7 +43,7 @@ const newsArticleList = computed(() => {
 function onSearch() {
   // uni.navigateTo({ url: '/pages/home/search/index' })
   console.log('onSearch')
-  uni.navigateTo({ url: '/pages/test' })
+  uni.navigateTo({ url: '/pages/home/search' })
 }
 function onScan() {
   console.log('onScan')
