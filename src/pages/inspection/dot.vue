@@ -67,8 +67,8 @@ const checkDotParams = reactive<CheckOneDot>({
   imageNumber: '',
 })
 
-async function onNext() {
-  if (!ImageList.value.length) {
+async function onNext(isImage: boolean) {
+  if (isImage && !ImageList.value.length) {
     return toast.error('至少上传一张图片')
   }
   checkDotParams.imageNumber = ImgNum.value
@@ -148,7 +148,7 @@ async function onPhone(e: { selectedItems: { phone: string } }) {
         <wd-button custom-class="flex-1" size="large" @click="onImage">
           拍照
         </wd-button>
-        <wd-button custom-class="flex-1" size="large" @click="onNext">
+        <wd-button custom-class="flex-1" size="large" @click="onNext(true)">
           完成当前点位巡视
         </wd-button>
       </view>
@@ -158,7 +158,7 @@ async function onPhone(e: { selectedItems: { phone: string } }) {
         <wd-button custom-class="flex-1" size="large" @click="onExcept">
           异常
         </wd-button>
-        <wd-button custom-class="flex-1" size="large" @click="onNext">
+        <wd-button custom-class="flex-1" size="large" @click="onNext(false)">
           完成当前点位巡视
         </wd-button>
       </view>
