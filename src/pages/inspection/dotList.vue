@@ -53,9 +53,12 @@ function onclick(idx: number) {
   <headerWrap :options="HeaderOptions" />
 
   <view class="flex-1 overflow-y-auto flex flex-col gap-4 p-4">
-    <template v-for="(item, idx) in routeInstanceDotList" :key="item.id">
+    <view v-for="(item, idx) in routeInstanceDotList" :key="item.id" style="position: relative; gap: 16px;">
+      <!-- <template> -->
       <Cell class="bg-white" :title="item.title" :label="`到达时间: ${item.comeTimeStr}`" @click="onclick(idx)" />
-    </template>
+      <view class="i-ic:twotone-fact-check text-red" style="position: absolute; right: 42px; padding: 4px; size: 16px; top: 0;" />
+      <!-- </template> -->
+    </view>
   </view>
 
   <view v-if="!isRealEnd">
