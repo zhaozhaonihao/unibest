@@ -54,7 +54,8 @@ export enum OutTokenEnum {
 }
 
 /** 获取附件[getObjectAttachmentList.json]  objectID 可能的取值 */
-export enum ObjectIDEnum {
-  全景图 = '8a2f462a9473d8b401947d736c0a0428',
-  处理违停车 = '8a2f462a926b2ea701926b4bb6b7003c',
+export enum ObjectDefineIDEnum {
+  意见反馈 = '8a2f462a5ebc4863015ebc755ff70455',
+  巡视点检查 = '8a2f462a926b2ea701926b4bb6b7003c',
+  挪车全景图 = '8a2f462a9473d8b401947d736c0a0428',
 }

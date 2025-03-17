@@ -8,8 +8,8 @@
 </route>
 
 <script lang="ts" setup>
-const { articleID, ArticleDetail } = storeToRefs(useOtherStore())
-const { RunGetArticleDetail } = useOtherStore()
+const { articleID, ArticleDetail } = storeToRefs(useArticleStore())
+const { RunGetArticleDetail } = useArticleStore()
 
 onLoad(() => {
   if (articleID.value)

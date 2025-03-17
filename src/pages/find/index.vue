@@ -1,200 +1,150 @@
-<route lang="json5" type="find">
-    {
-      layout: 'default',
-      style: {
-        navigationBarTitleText: '搜索',
-      },
-    }
+<route lang="json5" type="page">
+{
+  layout: 'page',
+  style: {
+    navigationBarTitleText: '查车',
+    enablePullDownRefresh: true,
+  },
+}
 </route>
 
-<script setup lang="ts">
-// import { APPLICATIONID } from '/static/constant.ts'
-// import { useUserStore } from '/store/user.ts'
-// import { useUserStore } from '@/store/user'
-// import { useMessage } from '@/uni_modules/wot-design-uni'
-import { onLoad } from '@dcloudio/uni-app'
-// import { storeToRefs } from 'pinia'
-import { ref } from 'vue'
-import VehicleItem from './components/vehicle_item.vue'
+<script lang="ts" setup>
+import vehicleInfo from '@/pages/vehicle/components/info.vue'
+import Illicit from './components/Illicit.vue'
 
-// const message = useMessage()
-const sequenceCode = ref('')
-const vList = ref([])
-const alertDialog = ref(null)
+const message = useMessage()
 
-// const userStore = useUserStore()
-// const { userInfo, loginInfo } = storeToRefs(userStore)
+const {
+  vehicleItem,
 
-onLoad(() => {
-  getList()
+} = storeToRefs(useVehicleFeatureStore())
+const {
+  UnLoad,
+} = useVehicleFeatureStore()
+
+const {
+  VehicleList,
+  vehicleList,
+  getVehicleParams,
+} = storeToRefs(useVehicleStore())
+
+const {
+  RunGetVehicleList,
+} = useVehicleStore()
+
+onLoad(() => load())
+onUnload(() => unload())
+
+onPullDownRefresh(() => {
+  unload()
+  load()
+
+  uni.stopPullDownRefresh()
 })
 
-function onBind() {
-  uni.navigateTo({ url: '/pages/vehicle/add' })
+function load() {
+  vehicleInfoVisible.value = false
+}
+function unload() {
+  getVehicleParams.value = undefined
+  VehicleList.value = undefined
+
+  sequenceCode.value = undefined
+  UnLoad()
 }
 
-async function getList() {
-  // const res = await get('/getVehicleList.json', {
-  //   applicationID: APPLICATIONID,
-  //   memberID: loginInfo.value.memberID,
-  // })
-  // vList.value = res.rows
+/** 特征查车可见 */
+const vehicleInfoVisible = ref(false)
+/** 车牌号 */
+const sequenceCode = ref<string | undefined>()
+
+function onClickIcon() {
+  console.log('照相按钮')
 }
 
 async function onSearch() {
-  // const sessionID = uni.getStorageSync('loginInfo').sessionID
-  // const res = await get('/getVehicleList.json', { sessionID, sequenceCode: sequenceCode.value })
-  // if (!res.rows.length) {
-  //   // 弹窗
-  //   message.alert({
+  getVehicleParams.value = undefined
 
-  //   })
-  //   alertDialog.value.open()
-  // }
-}
+  if (vehicleInfoVisible.value) {
+    getVehicleParams.value = {}
+    // 品牌
+    getVehicleParams.value.brandName = vehicleItem.value.brandName === ''
+      ? undefined
+      : vehicleItem.value.brandName
+    // 颜色
+    getVehicleParams.value.color = vehicleItem.value.color === ''
+      ? undefined
+      : vehicleItem.value.color
+    // 挡风
+    getVehicleParams.value.isWind = vehicleItem.value.isWind
+    getVehicleParams.value.windColor = vehicleItem.value.windColor === ''
+      ? undefined
+      : vehicleItem.value.windColor
+    getVehicleParams.value.windPattern = vehicleItem.value.windPattern === ''
+      ? undefined
+      : vehicleItem.value.windPattern
+    // 尾箱
+    getVehicleParams.value.isBox = vehicleItem.value.isBox
+    getVehicleParams.value.boxColor = vehicleItem.value.boxColor === ''
+      ? undefined
+      : vehicleItem.value.boxColor
 
-function dialogClose() {
-  alertDialog.value.close()
-}
+    getVehicleParams.value.sizeType = vehicleItem.value.sizeType
+    getVehicleParams.value.useType = vehicleItem.value.useType
+  }
+  else {
+    getVehicleParams.value = {}
 
-function onFeature() {
-  uni.navigateTo({ url: '/pages/find/feature' })
+    getVehicleParams.value.sequenceCode = sequenceCode.value
+  }
+
+  const data = await RunGetVehicleList()
+  if (!data?.rows.length)
+    message.confirm({ title: '暂无数据' })
+  else
+    vehicleInfoVisible.value = false
 }
 </script>
 
 <template>
-  <view class="content">
-    <view v-if="vList.length" class="v-item-wrap">
-      <VehicleItem v-for="item in vList" :key="item.vehicleID" :item="item" />
-    </view>
-    <view v-else class="empty-wrap">
-      <text>您还没有绑定车辆信息,</text>
-      <text>绑定车辆可以快速获取车辆动态信息</text>
-      <view class="text-btn" @click="onBind">
-        立即绑定
-      </view>
-    </view>
-    <text class="title">
-      车牌号查车
-    </text>
-    <input v-model="sequenceCode" class="uni-input" focus placeholder="请填写车牌号，支持模糊查询">
-    <view class="primary-btn" :class="{ disabled: !sequenceCode }" @click="onSearch">
-      查询
-    </view>
-    <view class="divider" />
-    <view class="outline-btn" @click="onFeature">
-      特征查车
-    </view>
+  <view class="flex-1 p-4 overflow-y-auto flex flex-col gap-4">
+    <template v-for="item in vehicleList" :key="item.id">
+      <Illicit v-bind="item" />
+    </template>
+    <wd-status-tip v-if="!vehicleList.length" image="search" tip="暂无数据" />
   </view>
 
-  <uni-popup ref="alertDialog" type="dialog">
-    <uni-popup-dialog type="info" cancel-text="关闭" confirm-text="特征查车" title="提示"
-                      :content="`未查询到车牌号${sequenceCode}的动态信息`" @confirm="onFeature" @close="dialogClose"
-    />
-  </uni-popup>
+  <view class="p-4 flex flex-col gap-4">
+    <!-- 车牌查询 -->
+    <wd-input
+      v-if="!vehicleInfoVisible"
+      v-model="sequenceCode"
+      custom-class="p-2"
+      custom-input-class="text-center"
+      placeholder="请输入车牌号"
+      :cursor-spacing="10"
+      confirm-type="search"
+      no-border
+      @confirm="onSearch"
+    >
+      <template #suffix>
+        <view class="i-tabler:camera" @click="onClickIcon" />
+      </template>
+    </wd-input>
+
+    <!-- 特征查车 -->
+    <vehicleInfo v-show="vehicleInfoVisible" />
+
+    <wd-button custom-class="w-full" size="large" block @click="onSearch">
+      查询
+    </wd-button>
+
+    <wd-button v-show="!vehicleInfoVisible" custom-class="w-full" plain size="large" block @click="vehicleInfoVisible = !vehicleInfoVisible">
+      特征查车
+    </wd-button>
+  </view>
 </template>
 
-<style lang="scss" scoped>
-.content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  // padding-inline: 16px;
-  height: 100vh;
-  box-sizing: border-box;
+<style scoped lang="scss">
 
-  .v-item-wrap {
-    flex: 1;
-    width: 100%;
-    padding-block-start: 16px;
-    padding-inline: 16px;
-    box-sizing: border-box;
-    overflow-y: auto;
-  }
-
-  .empty-wrap {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-
-    text {
-      color: #989696;
-    }
-
-    .text-btn {
-      color: #1e7aff;
-      margin-top: 12px;
-    }
-  }
-
-  .title {
-    color: #333;
-    font-weight: 13px;
-    width: 76%;
-    text-align: left;
-    margin-bottom: 12px;
-  }
-
-  .uni-input {
-    background-color: #eee;
-    border-radius: 6px;
-    padding-inline: 16px;
-    width: 76%;
-    height: 44px;
-    line-height: 44px;
-    box-sizing: border-box;
-  }
-
-  .primary-btn {
-    color: #fff;
-    background-color: #1e7aff;
-    border-radius: 6px;
-    width: 76%;
-    height: 44px;
-    line-height: 44px;
-    text-align: center;
-    margin-top: 20px;
-
-    &:hover {
-      color: #fff;
-      background-color: #1e7aff;
-    }
-
-    &.disabled {
-      opacity: 0.5;
-      pointer-events: none;
-    }
-  }
-
-  .divider {
-    width: 100%;
-    height: 1px;
-    background-color: #97979766;
-    margin-block: 12px;
-  }
-
-  .outline-btn {
-    color: #1e7aff;
-    border: 1px solid #1e7aff;
-    background-color: transparent;
-    border-radius: 6px;
-    width: 76%;
-    height: 44px;
-    line-height: 42px;
-    text-align: center;
-    margin-bottom: 24px;
-
-    &:hover {
-      color: #0062cc;
-      border-color: #0062cc;
-    }
-
-    &.disabled {
-      opacity: 0.5;
-      pointer-events: none;
-    }
-  }
-}
 </style>

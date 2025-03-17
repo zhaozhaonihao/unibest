@@ -23,11 +23,12 @@ module.exports = antfuPromise.then(antfu =>
     ignores: [
       '**/fixtures', // 测试用例文件夹
       '.commitlintrc.cjs', // 忽略 ESLint 对 commitlint 配置文件的检查
-      'src/uni_modules/', // 忽略 UniApp 模块文件
       'node_modules',
+      'src/uni_modules/', // 忽略 UniApp 模块文件
+      'src/manifest.json',
+      'src/pages.json',
       'dist',
       'build',
-      'coverage', // 忽略构建和依赖目录
     ],
 
     // 指定文件格式化规则

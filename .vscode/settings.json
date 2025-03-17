@@ -1,4 +1,8 @@
 {
+  "editor.tabSize": 2, // 设置缩进大小为2个空格
+  "editor.insertSpaces": true, // 使用空格进行缩进
+  "editor.detectIndentation": false, // 禁止 VS Code 根据文件内容自动检测缩进方式
+
   // 禁用 prettier 默认格式化程序，改用 eslint
   "prettier.enable": false,
   "editor.formatOnSave": false,
@@ -48,6 +52,6 @@
   "typescript.tsdk": "node_modules\\typescript\\lib",
   // ✅ 资源管理器文件嵌套规则（优化 VS Code 侧边栏文件显示）
   "explorer.fileNesting.patterns": {
-    "pages.config.ts": "manifest.config.ts" // `manifest.config.ts` 嵌套在 `pages.config.ts` 下面
+    "vite.config.ts": "pages.config.ts, manifest.config.ts"
   }
 }

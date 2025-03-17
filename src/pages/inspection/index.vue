@@ -25,7 +25,7 @@ function onClick(idx: number) {
 <template>
   <view class="flex flex-col gap-4 p-4">
     <template v-for="(item, idx) in routeDefine" :key="item.value">
-      <Cell class="bg-white" :title="item.label" @click="onClick(idx)" />
+      <Cell :title="item.label" @click="onClick(idx)" />
     </template>
   </view>
 </template>

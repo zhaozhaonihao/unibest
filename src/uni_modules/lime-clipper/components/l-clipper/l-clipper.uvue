@@ -1,0 +1,853 @@
+<template>
+	<view class="lime-clipper open">
+		<view class="lime-clipper-mask"
+			ref="clipperMaskRef"
+			@touchstart="clipTouchStart" 
+			@touchmove="clipTouchMove" 
+			@touchend="clipTouchEnd">
+			<!-- #ifndef APP -->
+			<view class="lime-clipper__content" ref="clipperRef" :style="clipStyle">
+				<view class="lime-clipper__edge" :class="'nth-child-' + (index + 1)"  v-for="(item, index) in [0, 0, 0, 0]" :key="index"></view>
+			</view>
+			<!-- #endif -->
+		</view>
+		<image
+			ref="imageRef"
+			class="lime-clipper-image"
+			@error="imageError"
+			@load="imageLoad"
+			 v-if="state.image != null"
+			:src="state.image"
+			:style="imageStyle"
+			@touchstart="imageTouchStart"
+			@touchmove="imageTouchMove"
+			@touchend="imageTouchEnd"/>
+		<canvas 
+			ref="canvasRef" 
+			canvas-id="lime-clipper" 
+			id="lime-clipper" 
+			disable-scroll
+			:style="{
+				width: state.canvasWidth + 'px',
+				height: state.canvasHeight + 'px',
+			}"
+			class="lime-clipper-canvas">
+		</canvas>
+		<view class="lime-clipper-tools" v-if="(isShowCancelBtn || isShowPhotoBtn || isShowRotateBtn || isShowConfirmBtn)">
+			<view class="lime-clipper-tools__btns" v-if="(isShowCancelBtn || isShowPhotoBtn || isShowRotateBtn || isShowConfirmBtn)">
+				<view v-if="isShowCancelBtn" @tap="cancel">
+					<slot name="cancel">
+						<text class="text cancel">取消</text>
+					</slot>
+				</view>
+				<view v-if="isShowPhotoBtn" @tap="uploadImage">
+					<slot name="photo">
+						<text class="text icon photo">&#xe76c;</text>
+					</slot>
+				</view>
+				<view v-if="isShowRotateBtn" @tap="rotate">
+					<slot name="rotate">
+						<text class="text icon rotate">&#xe76d;</text>
+					</slot>
+				</view>
+				<view v-if="isShowConfirmBtn" @tap="confirm" >
+					<slot name="confirm">
+						<text class="text confirm" :style="[confirmBgColor != null ? {background: confirmBgColor}: {}]">确定</text>
+					</slot>
+				</view>
+			</view>
+			<slot></slot>
+		</view>
+	</view>
+</template>
+
+<script setup lang="uts">
+	import { ClipperProps, ClipperState, ClipBoxSizes, Point, ClipperclipStart, Rectangle } from './type';
+	import { 
+		getPointPositionInRectangle,
+		isPointInRotatedRectangle,
+		calcImageSize, 
+		calcImageScale, 
+		calcImageOffset, 
+		calcPythagoreanTheorem, 
+		imageTouchMoveOfCalcOffset,
+		clamp, 
+		determineDirection, 
+		clipTouchMoveOfCalculate } from './utils.uts';
+	
+	const emit = defineEmits(['ready', 'change', 'rotate', 'cancel', 'input', 'success'])
+	const props = withDefaults(defineProps<ClipperProps>(), {
+		fileType: 'png',
+		quality: 1,
+		width: 400,
+		height: 400,
+		minWidth: 200,
+		minHeight: 200,
+		maxWidth: 600,
+		maxHeight: 600,
+		isLockWidth: false,
+		isLockHeight: false,
+		isLockRatio: true,
+		scaleRatio: 1,
+		minRatio: 0.5,
+		maxRatio: 2,
+		isDisableScale: false,
+		isDisableRotate: false,
+		isLimitMove: false,
+		isShowPhotoBtn: true,
+		isShowRotateBtn: true,
+		isShowConfirmBtn: true,
+		isShowCancelBtn: true,
+		rotateAngle: 90,
+		// source: ():UTSJSONObject => ({})
+		source: {
+			album: '从相册中选择',
+			camera: '拍照',
+			// #ifdef MP-WEIXIN
+			message: '从微信中选择'
+			// #endif
+		} //as UTSJSONObject
+	})
+
+	const state = reactive<ClipperState>({
+		canvasWidth: 0,
+		canvasHeight: 0,
+		clipX: -1,
+		clipY: -1,
+		clipWidth: 0,
+		clipHeight: 0,
+		animation: false,
+		imageWidth: 0,
+		imageHeight: 0,
+		imageTop: 0,
+		imageLeft: 0,
+		scale: 1,
+		angle: 0,
+		image: props.imageUrl,
+		imageInit: false,
+		// flagClipTouch: false,
+	})
+	
+	let touchRelative:Point[] = [];
+	let clipStart:ClipperclipStart = {
+			width: 0,
+			height: 0,
+			x: 0,
+			y: 0,
+			clipY: 0,
+			clipX: 0,
+			corner: 0
+	}
+	let hypotenuseLength = 0;
+	let throttleTimer = -1;
+	let timeClipCenter = -1;
+	let animationTimer = -1;
+	let flagEndTouch = false;
+	let flagClipTouch = false;
+	let throttleFlag = true;
+	let _image = '';
+	
+	let ctx : CanvasRenderingContext2D  | null = null;
+	let canvas : UniCanvasElement  | null = null;
+	let canvasContext : CanvasContext  | null = null;
+	const instance = getCurrentInstance()!
+	const canvasId = 'lime-clipper'
+	const canvasRef = ref<UniCanvasElement | null>(null)
+	
+	
+	const { windowHeight, windowWidth, pixelRatio} = uni.getWindowInfo();
+	const clipBoxSizes = computed(():ClipBoxSizes=>{
+		// #ifdef APP || WEB
+		const width = uni.rpx2px(props.width);
+		const height = uni.rpx2px(props.height);
+		const minWidth = uni.rpx2px(props.minWidth);
+		const minHeight = uni.rpx2px(props.minHeight);
+		const maxWidth = uni.rpx2px(props.maxWidth);
+		const maxHeight = uni.rpx2px(props.maxHeight);
+		// #endif
+		
+		// #ifndef APP || WEB
+		const width = uni.upx2px(props.width);
+		const height = uni.upx2px(props.height);
+		const minWidth = uni.upx2px(props.minWidth);
+		const minHeight = uni.upx2px(props.minHeight);
+		const maxWidth = uni.upx2px(props.maxWidth);
+		const maxHeight = uni.upx2px(props.maxHeight);
+		// #endif
+		return {
+			width,
+			height,
+			minWidth,
+			minHeight,
+			maxWidth,
+			maxHeight
+		} as ClipBoxSizes
+	})
+	
+	const clipStyle = computed(():Map<string, any>=>{
+		const style = new Map<string, any>();
+		// #ifndef APP
+		style.set('width', state.clipWidth + 'px')
+		style.set('height', state.clipHeight + 'px')
+		style.set('transition-property', state.animation ? '': 'background')
+		style.set('left', state.clipX + 'px')
+		style.set('top', state.clipY + 'px')
+		// #endif
+		return style
+	})
+	const imageStyle = computed(():Map<string, any>=>{
+		const style = new Map<string, any>();
+		// #ifndef APP
+		style.set('width', state.imageWidth != 0 ? state.imageWidth + 'px': 'auto')
+		style.set('height', state.imageHeight != 0 ? state.imageHeight + 'px': 'auto')
+		// style.set('transform', `translate(${state.imageLeft - state.imageWidth / 2}px, ${state.imageTop - state.imageHeight / 2}px) scale(${state.scale}) rotate(${state.angle}deg)`)
+		style.set('transform', `translateX(${state.imageLeft - state.imageWidth / 2}px) translateY(${state.imageTop - state.imageHeight / 2}px) scale(${state.scale}) rotate(${state.angle}deg)`)
+		style.set('transition-duration', state.animation ? '0.35s': '0s')
+		// #endif
+		return style
+	})
+	
+	const hidpi = (width: number, height: number) => {
+		if(canvas == null) return
+		// 处理高清屏逻辑
+		const dpr = pixelRatio;
+		canvas!.width = width * dpr;
+		canvas!.height = height * dpr;
+		ctx!.scale(dpr, dpr); // 仅需调用一次，当调用 reset 方法后需要再次 scale
+	}
+	const setClipInfo = () => {
+		const clipWidth = clipBoxSizes.value.width;
+		const clipHeight = clipBoxSizes.value.height;
+
+		const clipY = (windowHeight - clipHeight) * 0.5;
+		const clipX = (windowWidth - clipWidth) * 0.5;
+
+		const imageLeft = windowWidth * 0.5;
+		const imageTop = windowHeight * 0.5;
+
+		state.clipWidth = clipWidth;
+		state.clipHeight = clipHeight;
+		state.clipX = clipX;
+		state.clipY = clipY;
+		state.canvasHeight = clipHeight;
+		state.canvasWidth = clipWidth;
+		state.imageLeft = imageLeft;
+		state.imageTop = imageTop;
+
+		if (canvasRef.value == null) return
+		// 异步调用方式, 跨平台写法
+		nextTick(()=>{
+			uni.createCanvasContextAsync({
+				id: canvasId,
+				component: instance.proxy!,
+				success: (context : CanvasContext) => {
+					canvasContext = context;
+					ctx = context.getContext('2d')!;
+					canvas = ctx!.canvas;
+					hidpi(clipWidth, clipHeight)
+				}
+			})
+		})
+	}
+	const setClipCenter = () => {
+		let clipY = (windowHeight - state.clipHeight) * 0.5;
+		let clipX = (windowWidth - state.clipWidth) * 0.5;
+		state.imageTop = state.imageTop - state.clipY + clipY;
+		state.imageLeft = state.imageLeft - state.clipX + clipX;
+		state.clipY = clipY;
+		state.clipX = clipX;
+	}
+	const calcClipSize = () => {
+		if(state.clipWidth > windowWidth) {
+			state.clipWidth = windowWidth
+		} else if(state.clipWidth + state.clipX > windowWidth) {
+			state.clipX = windowWidth - state.clipX
+		}
+		
+		if(state.clipHeight > windowHeight) {
+			state.clipHeight = windowHeight
+		} else if(state.clipHeight + state.clipY > windowHeight) {
+			state.clipY = windowHeight - state.clipY
+		}
+	}
+	const cutDetectionPosition = () => {
+		// 辅助函数，用于确保裁剪区域在窗口内
+		const ensureWithinBounds = (value: number, maxValue: number, size: number):number => {
+		    if (value < 0) {
+				return 0;
+		    } else if (value > maxValue - size) {
+				return maxValue - size;
+		    }
+		    return value;
+		};
+		// 计算中心位置
+		const centerPosition = (maxValue: number, size: number):number => (maxValue - size) * 0.5;
+		const newClipY = state.clipY == -1 ? centerPosition(windowHeight, state.clipHeight) : ensureWithinBounds(state.clipY, windowHeight, state.clipHeight);
+		const newClipX = state.clipX == -1 ? centerPosition(windowWidth, state.clipWidth) : ensureWithinBounds(state.clipX, windowWidth, state.clipWidth);
+		state.clipY = newClipY
+		state.clipX = newClipX
+	}
+	const imgMarginDetectionPosition = (scale: number) => {
+		if (!props.isLimitMove) return;
+		const [left, top, currentScale] = calcImageOffset(
+			state.imageLeft, 
+			state.imageTop, 
+			state.imageWidth, 
+			state.imageHeight, 
+			state.clipX, 
+			state.clipY, 
+			state.clipWidth, 
+			state.clipHeight, 
+			state.angle, 
+			scale);
+		state.imageLeft = left
+		state.imageTop = top
+		state.scale = currentScale
+		
+	}
+	const imgMarginDetectionScale = (scale: number) => {
+		if (!props.isLimitMove) return;
+		const currentScale = calcImageScale(
+			state.imageWidth, 
+			state.imageHeight, 
+			state.clipWidth,
+			state.clipHeight,
+			state.angle,
+			scale);
+		imgMarginDetectionPosition(currentScale)	
+	}
+	const imgComputeSize = (width: number, height: number) => {
+		const [imageWidth, imageHeight] = calcImageSize(
+			width, height, 
+			clipBoxSizes.value.width, clipBoxSizes.value.height,
+			state.clipWidth, state.clipHeight);
+			
+		state.imageWidth = imageWidth;
+		state.imageHeight = imageHeight;
+	}
+	const imageReset = () => {
+		state.scale = 1;
+		state.angle = 0;
+		
+		state.imageTop = windowHeight * 0.5;
+		state.imageLeft = windowWidth * 0.5;
+	}
+	const moveStop = () => {
+		clearTimeout(timeClipCenter);
+		timeClipCenter = setTimeout(() => {
+			if (!state.animation) {
+				state.animation = true
+				state.imageInit = true
+			}
+			nextTick(setClipCenter)
+		}, 800);
+	}
+	let touchTarget:'image' | 'clip' | null = null
+	const imageTouchStart = (e: UniTouchEvent) => {
+		e.preventDefault();
+		flagEndTouch = false;
+		state.animation = false;
+		const { imageLeft, imageTop } = state;
+		const [touch0] = e.touches;
+		 // 计算触摸点相对于图片的相对位置
+		const getTouchRelative = (touch: UniTouch):Point =>  (
+		{
+			x: touch.clientX - imageLeft,
+			y: touch.clientY - imageTop
+		} as Point)
+		// 存储触摸点的相对位置
+		touchRelative = [getTouchRelative(touch0)];
+		
+		if(e.touches.length > 1) {
+			const touch1 = e.touches[1];
+			const touch1Relative = getTouchRelative(touch1);
+			
+			// 计算两点之间的距离
+			const width = Math.abs(touch0.clientX - touch1.clientX);
+			const height = Math.abs(touch0.clientY - touch1.clientY);
+			hypotenuseLength = Math.hypot(width, height);
+			touchRelative.push(touch1Relative);
+		}
+	}
+	const imageTouchMove = (e: UniTouchEvent) => {
+		e.preventDefault();
+		if (flagEndTouch || !throttleFlag) return;
+		throttleFlag = true;
+		clearTimeout(timeClipCenter);
+		const [touch0] = e.touches;
+		const { clientX: clientXForLeft, clientY: clientYForLeft } = touch0;
+		if(e.touches.length == 1) {
+			const [imageLeft, imageTop] = imageTouchMoveOfCalcOffset(touchRelative[0], clientXForLeft, clientYForLeft);
+			state.imageLeft = imageLeft;
+			state.imageTop = imageTop;
+			imgMarginDetectionPosition(state.scale)
+		} else if(e.touches.length > 1) {
+			
+			const touch1 = e.touches[1];
+			const { clientX: clientXForRight, clientY: clientYForRight } = touch1;
+			const width = Math.abs(clientXForLeft - clientXForRight);
+			const height = Math.abs(clientYForLeft - clientYForRight);
+			const hypotenuse = Math.hypot(width, height);
+			let scale = state.scale * (hypotenuse / hypotenuseLength);
+			
+			if(props.isDisableScale) {
+				scale = 1;
+			} else {
+				scale = clamp(scale, props.minRatio, props.maxRatio);
+				emit('change', { width: state.imageWidth * scale, height: state.imageHeight * scale });
+			}
+			if(state.scale == scale) return
+			imgMarginDetectionScale(scale);
+			hypotenuseLength = hypotenuse;
+			state.scale = scale;
+		}
+	}
+	const imageTouchEnd = (e: UniTouchEvent) => {
+		flagEndTouch = true;
+		moveStop()
+	}
+	const clipTouchStart = (e: UniTouchEvent) => {
+		e.preventDefault();
+		if (state.image == null) {
+			uni.showToast({
+				title: '请选择图片',
+				icon: 'none'
+			});
+			return;
+		}
+		const clientX = e.touches[0].clientX;
+		const clientY = e.touches[0].clientY;
+		
+		// #ifdef APP
+		const point:Point = {x: clientX, y: clientY}
+		const clipRectangle: Rectangle = {x: state.clipX, y: state.clipY, width: state.clipWidth, height: state.clipHeight}
+		
+		const corner = getPointPositionInRectangle(
+			point,
+			clipRectangle
+		)
+		if(corner != null) {
+			touchTarget = 'clip'
+		} else {
+			const imageRectangle: Rectangle = {
+				x: state.imageLeft - state.imageWidth / 2, 
+				y: state.imageTop - state.imageHeight / 2,
+				width: state.imageWidth, 
+				height: state.imageHeight} 
+			const isImage = isPointInRotatedRectangle(point, imageRectangle, state.scale, state.angle)
+			if(isImage) {
+				touchTarget = 'image'
+				imageTouchStart(e)
+			}
+		}
+		if(corner == null) return;
+		// #endif
+		// #ifndef APP
+		const corner = determineDirection(state.clipX, state.clipY, state.clipWidth, state.clipHeight, clientX, clientY);
+		if(corner == -1) return;
+		// #endif
+		clearTimeout(timeClipCenter);
+		
+		clipStart = {
+			width: state.clipWidth,
+			height: state.clipHeight,
+			x: clientX,
+			y: clientY,
+			clipX : state.clipX,
+			clipY : state.clipY,
+			corner
+		} as ClipperclipStart
+		flagClipTouch = true;
+		flagEndTouch = true;
+	}
+	const clipTouchMove = (e: UniTouchEvent) => {
+		// #ifdef APP
+		if(touchTarget == 'image') {
+			imageTouchMove(e)
+			return
+		}
+		if(touchTarget != 'clip') return
+		// #endif
+		e.stopPropagation()
+		e.preventDefault()
+		if (state.image == null) {
+			uni.showToast({
+				title: '请选择图片',
+				icon: 'none'
+			});
+			return;
+		}
+		// 只针对单指点击做处理
+		if (e.touches.length != 1) return;
+		if(flagClipTouch && throttleFlag) {
+			const [touch] = e.touches
+			const { isLockRatio, isLockHeight, isLockWidth } = props;
+			if (isLockRatio && (isLockWidth || isLockHeight)) return;
+			// throttleFlag = false;
+			throttleFlag = true;
+			const clipData = clipTouchMoveOfCalculate(
+				state.clipWidth,
+				state.clipHeight,
+				state.clipX,
+				state.clipY,
+				clipBoxSizes.value.minWidth,
+				clipBoxSizes.value.maxWidth,
+				clipBoxSizes.value.minHeight,
+				clipBoxSizes.value.maxHeight,
+				clipStart,
+				props.isLockRatio,
+				touch);
+				
+			if(clipData == null) return
+			const [width, height, clipX, clipY] = clipData;	
+			if(!isLockWidth && !isLockHeight) {
+				state.clipWidth = width
+				state.clipHeight = height
+				state.clipX = clipX
+				state.clipY = clipY
+			} else if(!isLockWidth) {
+				state.clipWidth = width
+				state.clipX = clipX
+			} else if(!isLockHeight) {
+				state.clipHeight = height
+				state.clipY = clipY
+			}
+			imgMarginDetectionScale(state.scale)
+		}
+	}
+	const clipTouchEnd = (e: UniTouchEvent) => {
+		// #ifdef APP
+		if(touchTarget == 'image') {
+			imageTouchEnd(e)
+			return
+		}
+		if(touchTarget != 'clip') return
+		// #endif
+		moveStop()
+		flagClipTouch = false
+		touchTarget = null
+	}
+	
+	const imageLoad = (e: UniImageLoadEvent) => {
+		imageReset()
+		uni.hideLoading();
+		emit('ready', e);
+	}
+	const imageError = (e: UniImageErrorEvent) => {
+		imageReset()
+		uni.hideLoading();
+	}
+	
+	const uploadImage = (e:UniPointerEvent) => {
+		uni.chooseImage({
+			count: 1,
+			sizeType: ['original', 'compressed'],
+			sourceType: ['album','camera'],
+			success(res) {
+				state.image = res.tempFilePaths[0]
+			}
+		})
+	}
+	const rotate = (e:UniPointerEvent) => {
+		if (props.isDisableRotate) return;
+		if (state.image == null) {
+			uni.showToast({
+				title: '请选择图片',
+				icon: 'none'
+			});
+			return;
+		}
+		// const { rotateAngle } = props;
+		// const originAngle = state.angle
+		// const type = event.currentTarget.dataset.type;
+		// if (type === 'along') {
+		// 	this.angle = originAngle + rotateAngle
+		// } else {
+			if(!state.animation) {
+				state.animation = true;
+				nextTick(()=>{
+					state.angle = state.angle - props.rotateAngle
+				})
+			} else {
+				state.angle = state.angle - props.rotateAngle
+			}
+			
+		// }
+		emit('rotate', state.angle);
+	}
+	const cancel = (e:UniPointerEvent) => {
+		emit('cancel', false)
+		emit('input', false)
+		uni.hideLoading()
+	}
+	const confirm = (e:UniPointerEvent) => {
+		if (state.image == null) {
+			uni.showToast({
+				title: '请选择图片',
+				icon: 'none'
+			});
+			return;
+		}
+		uni.showLoading({
+			title: '加载中'
+		});
+		const { 
+			canvasHeight, 
+			canvasWidth, 
+			clipHeight, 
+			clipWidth, 
+			scale, 
+			imageLeft, 
+			imageTop, 
+			clipX, 
+			clipY, 
+			angle, 
+		} = state;
+		const dpr = props.scaleRatio
+		const draw = () => {
+			if(ctx == null || canvas == null) return
+			const img = canvasContext!.createImage()
+			// #ifdef WEB
+			// @ts-ignore
+			img.crossOrigin = 'Anonymous';
+			// #endif
+			// @ts-ignore
+			img.onload = () => {
+				const imageWidth = state.imageWidth * scale * dpr;
+				const imageHeight = state.imageHeight * scale * dpr;
+				const xpos = imageLeft - clipX;
+				const ypos = imageTop - clipY;
+				ctx!.translate(xpos * dpr, ypos * dpr);
+				ctx!.rotate((angle * Math.PI) / 180);
+				ctx!.drawImage(img, -imageWidth / 2, -imageHeight / 2, imageWidth, imageHeight);
+				const url = canvas!.toDataURL();
+				uni.hideLoading()
+				emit('success', {
+						url,
+						width: clipWidth * dpr,
+						height: clipHeight * dpr
+				});
+				emit('input', false)
+			}
+			// @ts-ignore
+			img.onerror = () => {
+				uni.hideLoading()
+			}
+			img.src = _image
+		}
+		if(canvasWidth != clipWidth || canvasHeight != clipHeight) {
+			state.canvasWidth = clipWidth
+			state.canvasHeight = clipHeight
+			nextTick(()=>{
+				hidpi(clipWidth, clipHeight)
+				nextTick(draw)
+			})
+		} else {
+			nextTick(draw)
+		}
+	}
+	
+	watchEffect(()=>{
+		state.image = props.imageUrl;
+	})
+	
+	// #ifdef APP
+	const imageRef = ref<UniImageElement | null>(null)
+	// const imageRef = ref<UniElement | null>(null)
+	watchEffect(()=>{
+		if(imageRef.value == null) return;
+		imageRef.value!.style.setProperty('width', state.imageWidth != 0 ? state.imageWidth + 'px': 'auto')
+		imageRef.value!.style.setProperty('height', state.imageHeight != 0 ? state.imageHeight + 'px': 'auto')
+		imageRef.value!.style.setProperty('transform', `translateX(${state.imageLeft - state.imageWidth / 2}px) translateY(${state.imageTop - state.imageHeight / 2}px) scale(${state.scale}) rotate(${state.angle}deg)`)
+		imageRef.value!.style.setProperty('transition-duration', state.animation ? '0.35s': '0s')
+	})
+	const clipperRef = ref<UniElement|null>(null)
+	const clipperMaskRef = ref<UniElement|null>(null)
+	let maskCtx:DrawableContext|null = null;
+	const drawMaskClip = () => {
+		if(clipperMaskRef.value == null) return
+		if(maskCtx == null) {
+			maskCtx = clipperMaskRef.value!.getDrawableContext()
+		}
+		const _maskCtx = maskCtx!
+		const rect = clipperMaskRef.value!.getBoundingClientRect()
+		_maskCtx.reset()
+		// 遮罩
+		_maskCtx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+		_maskCtx.beginPath()
+		_maskCtx.moveTo(0, 0)
+		_maskCtx.lineTo(rect.width, 0)
+		_maskCtx.lineTo(rect.width, rect.height)
+		_maskCtx.lineTo(0, rect.height)
+		_maskCtx.lineTo(state.clipX, state.clipY + state.clipHeight)
+		_maskCtx.lineTo(state.clipX + state.clipWidth, state.clipY + state.clipHeight)
+		_maskCtx.lineTo(state.clipX + state.clipWidth, state.clipY)
+		_maskCtx.lineTo(state.clipX, state.clipY)
+		_maskCtx.lineTo(state.clipX, state.clipY + state.clipHeight)
+		_maskCtx.lineTo(0, rect.height)
+		_maskCtx.lineTo(0, 0)
+		_maskCtx.closePath()
+		_maskCtx.fill();
+		// 描边
+		_maskCtx.beginPath()
+		_maskCtx.setLineDash([4, 4])
+		_maskCtx.lineWidth = 1
+		_maskCtx.strokeStyle = 'rgba(255,255,255,.3)'
+		_maskCtx.moveTo(state.clipX, state.clipY + state.clipHeight)
+		_maskCtx.lineTo(state.clipX + state.clipWidth, state.clipY + state.clipHeight)
+		_maskCtx.lineTo(state.clipX + state.clipWidth, state.clipY)
+		_maskCtx.lineTo(state.clipX, state.clipY)
+		_maskCtx.lineTo(state.clipX, state.clipY + state.clipHeight)
+		_maskCtx.stroke()
+		// y虚线
+		_maskCtx.beginPath()
+		_maskCtx.moveTo(state.clipX, state.clipY + state.clipHeight / 3)
+		_maskCtx.lineTo(state.clipX + state.clipWidth, state.clipY + state.clipHeight / 3)
+		
+		_maskCtx.stroke()
+		
+		_maskCtx.beginPath()
+		_maskCtx.moveTo(state.clipX, state.clipY + state.clipHeight / 3 * 2)
+		_maskCtx.lineTo(state.clipX + state.clipWidth, state.clipY + state.clipHeight / 3 * 2)
+		_maskCtx.stroke()
+		// x虚线
+		_maskCtx.beginPath()
+		_maskCtx.moveTo(state.clipX + state.clipWidth / 3, state.clipY)
+		_maskCtx.lineTo(state.clipX + state.clipWidth / 3, state.clipY + state.clipHeight)
+		_maskCtx.stroke()
+		
+		_maskCtx.beginPath()
+		_maskCtx.moveTo(state.clipX + state.clipWidth / 3 * 2, state.clipY)
+		_maskCtx.lineTo(state.clipX + state.clipWidth / 3 * 2, state.clipY + state.clipHeight)
+		_maskCtx.stroke()
+		
+		// 左上角
+		const edgeLength = 20
+		const edgeWidth = 3
+		_maskCtx.lineWidth = 3
+		_maskCtx.strokeStyle = 'rgba(255,255,255,1)'
+		// #ifdef APP-IOS
+		_maskCtx.setLineDash([0, 0.0001])//ios 不能为0
+		// #endif
+		// #ifdef APP-ANDROID
+		_maskCtx.setLineDash([0, 0])
+		// #endif
+		_maskCtx.beginPath()
+		_maskCtx.moveTo(state.clipX, state.clipY + edgeLength)
+		_maskCtx.lineTo(state.clipX, state.clipY)
+		_maskCtx.lineTo(state.clipX + edgeLength, state.clipY)
+		_maskCtx.stroke()
+		// 右上角
+		_maskCtx.beginPath()
+		_maskCtx.moveTo(state.clipX + state.clipWidth - edgeLength, state.clipY)
+		_maskCtx.lineTo(state.clipX + state.clipWidth, state.clipY)
+		_maskCtx.lineTo(state.clipX + state.clipWidth, state.clipY + edgeLength)
+		_maskCtx.stroke()
+		// 右下角
+		_maskCtx.beginPath()
+		_maskCtx.moveTo(state.clipX + state.clipWidth, state.clipY + state.clipHeight - edgeLength)
+		_maskCtx.lineTo(state.clipX + state.clipWidth, state.clipY + state.clipHeight)
+		_maskCtx.lineTo(state.clipX + state.clipWidth - edgeLength, state.clipY + state.clipHeight)
+		_maskCtx.stroke()
+		// 左下角
+		_maskCtx.beginPath()
+		_maskCtx.moveTo(state.clipX + edgeLength, state.clipY + state.clipHeight)
+		_maskCtx.lineTo(state.clipX, state.clipY + state.clipHeight)
+		_maskCtx.lineTo(state.clipX, state.clipY + state.clipHeight - edgeLength)
+		_maskCtx.stroke()
+		
+		_maskCtx.update()
+	}
+	
+	watchEffect(()=>{
+		if(clipperMaskRef.value == null) return;
+		if(maskCtx == null) {
+			setTimeout(()=>{
+				drawMaskClip()
+			},100)
+		} 
+		drawMaskClip()
+		
+		// clipperRef.value!.style.setProperty('width', state.clipWidth + 'px')
+		// clipperRef.value!.style.setProperty('height', state.clipHeight + 'px')
+		// clipperRef.value!.style.setProperty('transition-property', state.animation ? '': 'background')
+		// clipperRef.value!.style.setProperty('left', state.clipX + 'px')
+		// clipperRef.value!.style.setProperty('top', state.clipY + 'px')
+		// clipperRef.value!.style.setProperty('z-index', 10)
+	})
+	// #endif
+	
+	
+	watch(():string|null => state.image, (src: string|null)=>{
+		if(src == null) return
+		state.imageInit = false
+		uni.showLoading({
+			title: '请稍候...',
+			mask: true
+		});
+		uni.getImageInfo({
+			src,
+			success(res) {
+				uni.hideLoading()
+				if(['right', 'left'].includes(res.orientation ?? '')){
+					imgComputeSize(res.height, res.width)
+				} else {
+					imgComputeSize(res.width, res.height)
+				}
+				_image = res.path;
+				if(props.isLimitMove) {
+					imgMarginDetectionScale(state.scale)
+				}
+			},
+			fail(err) {
+				uni.hideLoading()
+			}
+		})
+	}, {immediate: true})
+	
+	// watch(():boolean => state.animation ,(value: boolean) => {
+	// 	clearTimeout(animationTimer);
+	// 	if(value) {
+	// 		animationTimer = setTimeout(() => {
+	// 			state.animation = false;
+	// 		}, 260);
+	// 	}
+	// })
+	watch(clipBoxSizes, (_clipBoxSizes: ClipBoxSizes)=> {
+		state.clipWidth = clamp(clipBoxSizes.value.width, clipBoxSizes.value.minWidth, clipBoxSizes.value.maxWidth)
+		state.clipHeight = clamp(clipBoxSizes.value.height, clipBoxSizes.value.minHeight, clipBoxSizes.value.maxHeight)
+		calcClipSize()
+	})
+	watch(():number=> state.angle, (angle: number)=>{
+		state.animation = true//state.imageInit;
+		moveStop()
+		if(props.isLimitMove && angle % 90 != 0) {
+			state.angle = Math.round(angle / 90) * 90
+		}
+		imgMarginDetectionScale(state.scale)
+	})
+	watch(():boolean => props.isLimitMove, (limit: boolean)=>{
+		state.animation = true//state.imageInit;
+		moveStop()
+		if(limit && state.angle % 90 != 0) {
+			state.angle = Math.round(state.angle / 90) * 90
+		}
+		imgMarginDetectionScale(state.scale)
+	})
+	watch(():number[] => [state.clipX, state.clipY], (_:number[])=> {
+		cutDetectionPosition()
+	})
+	
+	
+	onMounted(() => {
+		// state.image = props.imageUrl
+		setClipInfo()
+		setClipCenter()
+		calcClipSize()
+		cutDetectionPosition()
+	})
+</script>
+
+<style lang="scss">
+	@import './index';
+</style>

@@ -21,10 +21,8 @@ interface HotWordItem {
 }
 
 /** 系统推荐的热词 */
-function getHotWordList() {
-  return http.get<IPageData<HotWordItem>>('/getHotWordList', { searchDefineID: SEARCHDEFINEID })
-}
-
-export {
-  getHotWordList,
+export function getHotWordList() {
+  return http.get<IPageData<HotWordItem>>('/getHotWordList', {
+    searchDefineID: SEARCHDEFINEID,
+  })
 }

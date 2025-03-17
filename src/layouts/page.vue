@@ -3,13 +3,13 @@ import type { ConfigProviderThemeVars } from 'wot-design-uni'
 
 const themeVars: ConfigProviderThemeVars = {}
 
-onPullDownRefresh(() => {
-  console.log('refresh start')
-  setTimeout(() => {
-    uni.stopPullDownRefresh()
-    console.log('refresh end')
-  }, 1000)
-})
+// onPullDownRefresh(() => {
+//   console.log('refresh start')
+//   setTimeout(() => {
+//     uni.stopPullDownRefresh()
+//     console.log('refresh end')
+//   }, 1000)
+// })
 </script>
 
 <template>

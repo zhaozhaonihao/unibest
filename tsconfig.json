@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "composite": true,
+    "target": "ESNext",
     "lib": ["esnext", "dom"],
     "baseUrl": ".",
     "module": "ESNext",
@@ -15,17 +16,16 @@
       "@types/wechat-miniprogram",
       "wot-design-uni/global.d.ts",
       "z-paging/types",
-      "./src/typings.d.ts"
+      "./src/typings.d.ts",
+      "node"
     ],
     "allowJs": true,
     "noImplicitThis": true,
+    "downlevelIteration": true,
     "outDir": "dist",
     "sourceMap": true,
     "allowSyntheticDefaultImports": true,
     "skipLibCheck": true
-  },
-  "vueCompilerOptions": {
-    "plugins": ["@uni-helper/uni-types/volar-plugin"]
   },
   "include": [
     "src/**/*.ts",
@@ -34,5 +34,12 @@
     "src/**/*.vue",
     "src/**/*.json"
   ],
-  "exclude": ["node_modules"]
+  "vueCompilerOptions": {
+    "plugins": ["@uni-helper/uni-types/volar-plugin"]
+  },
+  "exclude": [
+    "node_modules",
+    "src/uni_modules",
+    "dist"
+  ]
 }

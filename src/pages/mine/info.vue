@@ -1,10 +1,10 @@
 <route lang="json5">
-{
-  layout: 'page',
-  style: {
-    navigationBarTitleText: '个人信息',
-  },
-}
+  {
+    layout: 'page',
+    style: {
+      navigationBarTitleText: '个人信息',
+    },
+  }
 </route>
 
 <script setup lang="ts">
@@ -17,7 +17,6 @@ const { RunGetOneMemberDetail } = useUserStore()
 
 onLoad(() => RunGetPropertyList())
 
-// 头像
 // 头像裁剪
 const { data, run, cropperShow, cropperImgUrl } = useCropper({ fileBucketID: FILEBUCKETID })
 
@@ -103,6 +102,6 @@ async function onPropertyChange() {
   </wd-popup>
 </template>
 
-<style lang="scss" scoped>
+  <style lang="scss" scoped>
 
-</style>
+  </style>

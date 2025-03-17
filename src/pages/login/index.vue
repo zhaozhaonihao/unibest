@@ -1,162 +1,113 @@
-<route lang="json5">
+<route lang="json5" type="page">
   {
+    layout: 'page',
     style: {
-      navigationBarTitleText: '授权登录',
+      navigationBarTitleText: '登录',
     },
   }
-  </route>
+</route>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import { getWeixinMemberPhone, searchMemberByPhone } from '@/service/static/login'
-import { updateMyMemberAvatar } from '@/service/static/user'
-import { useUserStore } from '@/store/user'
-import { onShow } from '@dcloudio/uni-app'
 
-const { isLogined } = storeToRefs(useUserStore())
-const { RunGetOneMemberDetail, getOpenId, onRegister } = useUserStore()
-const phoneNumber = ref('')
-// 导入弹窗组件
-const toast = useToast()
+onUnload(() => closePopup())
+
+const { handleAuth } = useUserStore()
 
 const isAgree = ref(false)
-const registerPopup = ref(null)
-// 用户上传头像地址
-const avatarURL = ref('')
+const registerPopup = ref(true)
+
+const phoneNumber = ref('')
 const nickname = ref('')
-const loading = ref(false)
 
-onShow(() => {
-  openLoading(login, '登录失败, 请重新登录')
-})
+async function getPhoneNumber(a) {
+  console.log('AAAAAAAAAAAAAAAAAAA', a)
 
-// 头像地址
-const avatarUrl = computed(() => {
-  return avatarURL.value || 'https://imgs.699pic.com/images/500/465/562.jpg!list1x.v2'
-})
+  const { errMsg, encryptedData, iv } = a
+  if (errMsg !== 'getPhoneNumber:ok')
+    return console.error('获取手机号失败')
 
-function login() {
-  getOpenId()
-}
+  try {
+    const { code } = await uni.login({ provider: 'weixin' })
+    // 获取手机号
+    const { phoneNumber } = await getWeixinMemberPhone({ encryptedData, iv, js_code: code })
 
-async function register() {
-  await onRegister(phoneNumber.value, nickname.value)
-  if (avatarURL.value) {
-    // 图像 上传
-    const data = await uploadFile<IUploadData>({ tempFilePath: avatarUrl.value, formData: { fileBucketID: FILEBUCKETID } })
-    const imageData = data as IUploadData
-    imageData && await updateMyMemberAvatar(imageData.filesURL)
-    RunGetOneMemberDetail()
-  }
-}
+    if (phoneNumber) {
+      const { phone } = await searchMemberByPhone(phoneNumber)
 
-function getPhoneNumber(detail) {
-  const { errMsg, encryptedData, iv } = detail
-  if (errMsg === 'getPhoneNumber:ok') {
-    uni.login({
-      provider: 'weixin',
-      success: async ({ code }) => {
-        const { data, run } = useRequest(() => getWeixinMemberPhone(encryptedData, iv, code))
-        await run()
-        phoneNumber.value = data.value.phoneNumber
-        if (phoneNumber.value) {
-          const { data, run } = useRequest(() => searchMemberByPhone(phoneNumber.value))
-          await run()
-          if (data.value?.phone && data.value.phone === phoneNumber.value) {
-            console.log('openId校验失败或手机号未找到')
-            openLoading(login, '登录失败, 请重新登录')
-            return
-          }
-          else {
-            console.log('手机号不存在或未注册')
-          }
-        }
-        // 未获取到手机号码
-        console.log('未获取到手机号码')
+      if (phone && phone === phoneNumber) {
+        console.log('已注册，登录')
+        handleAuth('wxLogin')
+        uni.navigateBack()
+      }
+      else {
+        console.log('手机号未在系统注册')
         registerPopup.value = true
-      },
-    })
-  }
-}
-
-function openLoading(loginFun: () => void, errMsg) {
-  loading.value = true
-  loginFun()
-  setTimeout(() => {
-    loading.value = false
-    if (isLogined) {
-      uni.navigateBack({ delta: 1 })
+      }
     }
     else {
-      toast.error(errMsg)
+      console.error('解析手机号失败')
+      const toast = useToast()
+      toast.error('解析手机号失败')
     }
-  }, 1200)
+  }
+  catch (error) {
+    console.error('操作失败', error)
+  }
 }
 
-async function chooseAvatar(detail) {
-  avatarURL.value = detail.detail?.avatarUrl
+async function onRegister() {
+  await handleAuth('wxRegister', { phone: phoneNumber.value, name: nickname.value })
+  uni.navigateBack()
 }
 
-function handleChange(e) {
-  nickname.value = e.detail.value
+function changeAgree({ detail: { value } }) {
+  isAgree.value = value.length > 0
 }
-
-function handleClose() {
+function closePopup() {
+  phoneNumber.value = ''
   nickname.value = ''
-}
-
-function navToPrivacy() {
-  uni.navigateTo({ url: '/pages/mine/privacy/index' })
-}
-
-function navToRegister() {
-  uni.navigateTo({ url: '/pages/mine/register/index' })
 }
 </script>
 
 <template>
-  <wd-overlay :show="loading">
-    <view class="flex items-center justify-center h-full">
-      <wd-loading />
+  <view class="flex-1 flex flex-col items-center gap-4">
+    <view class="size-20 flex justify-center items-center bg-[#1e7aff] rounded-50 mt-10">
+      <view class="w-[80%] h-[80%] i-tabler:user-filled bg-white" />
     </view>
-  </wd-overlay>
-  <view class="justify-center items-center flex-col flex">
-    <wd-img :width="84" :height="84" :src="avatarUrl" />
 
-    <wd-divider color="#111" style="width: 75%; height: 1px;background: #cccccc80;margin-block: 4vh 2vh;" />
+    <view class="w-full h-[0.5px] bg-blueGray" />
 
-    <text class="font-extrabold text-4 p-2" style="color: #111;">
+    <text class="text-lg font-semibold">
       智能导寻
     </text>
-    <text class="font-extrabold text-4 p-2 p-1 " style="color: #111;">
+
+    <text class="text-gray-600 mb-4">
       申请授权登录
     </text>
-    <wd-checkbox v-model="isAgree" shape="square" class="" style="align-items: center; display: inline-flex;">
-      <text class="text-[#949494]" style="">
-        同意并接受
-        <text class="text-[#1e7aff]" style="" @tap.stop="navToPrivacy">
-          《隐私协议》
-        </text>
-        和
-        <text class="text-[#1e7aff]" @tap.stop="navToRegister">
-          《注册协议》
-        </text>
-      </text>
-    </wd-checkbox>
 
-    <view class="m-2 p-2 gap-2 justify-center items-center flex-col flex">
-      <wd-button :disabled="!isAgree" open-type="getPhoneNumber" @getphonenumber="getPhoneNumber">
-        授权登录
-      </wd-button>
-    </view>
+    <checkbox-group @change="changeAgree">
+      <label class="flex items-center">
+        <checkbox :checked="isAgree" />
+        <text>同意并接受</text>
+        <navigator url="/pages/mine/privacy" class="text-blue-5" @click.stop>《隐私协议》</navigator>
+        <text> 和 </text>
+        <navigator url="/pages/mine/register" class="text-blue-5" @click.stop>《注册协议》</navigator>
+      </label>
+    </checkbox-group>
+
+    <wd-button class="w-[50%]" block open-type="getPhoneNumber" :disabled="!isAgree" @getphonenumber="getPhoneNumber">
+      授权登录
+    </wd-button>
   </view>
 
-  <wd-popup v-model="registerPopup" custom-style="border-radius:32rpx;" @close="handleClose">
-    <view class="bg-[#fff] rounded-2 p-6 flex-col flex" style="align-items: center;">
-      <button class="p-0 w-16 h-16" open-type="chooseAvatar" @chooseavatar="chooseAvatar">
-        <wd-img :width="64" :height="64" :src="avatarUrl" style="" />
-      </button>
-      <view class="w-60 flex" style="align-items: start; flex-direction: column; ">
-        <input v-model="nickname" type="nickname" placeholder="请输入昵称" class="border-b-[1px] border-b-solid border-b-[#dbdbdb] p-2" @change="handleChange">
+  <wd-popup v-model="registerPopup" custom-class="rounded-4" @close="closePopup">
+    <view class="flex flex-col items-center bg-[#fff] rounded-2 p-4">
+      <view class="size-20 flex justify-center items-center bg-[#1e7aff] rounded-50">
+        <view class="w-[80%] h-[80%] i-tabler:user-filled bg-white" />
+      </view>
+      <view class="w-60 flex flex-col">
+        <input v-model="nickname" type="nickname" placeholder="请输入昵称" class="border-b-[1px] border-b-solid border-b-[#dbdbdb] p-2">
         <text class="c-pink text-3 p-2">
           *以英文字母或者汉字开头
         </text>
@@ -164,9 +115,13 @@ function navToRegister() {
           *限4-16个字符,一个汉字为2个字符
         </text>
       </view>
-      <wd-button :disabled="!nickname.length" class="w-5 p-2" @click="openLoading(register, '注册失败, 请重新注册')">
+      <wd-button :disabled="!nickname.length" class="w-5 p-2" @click="onRegister">
         注册
       </wd-button>
     </view>
   </wd-popup>
 </template>
+
+  <style lang="scss" scoped>
+
+  </style>

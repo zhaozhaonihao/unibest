@@ -5,7 +5,7 @@
     "body": [
       "<route lang=\"json5\" type=\"page\">",
       "{",
-      "  layout: 'default',",
+      "  layout: 'page',",
       "  style: {",
       "    navigationBarTitleText: '$1',",
       "  },",
