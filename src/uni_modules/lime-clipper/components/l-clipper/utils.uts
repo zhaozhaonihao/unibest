@@ -1,0 +1,506 @@
+import { Point, ClipperclipStart, Rectangle } from './type';
+const sysinfo = uni.getWindowInfo();
+
+
+/**
+ * 将给定的值限制在指定的最小值和最大值之间
+ * @param {number} value - 要限制的值。
+ * @param {number} min - 允许的最小值。
+ * @param {number} max - 允许的最大值。
+ * @returns {number} 返回限制后的值。
+ */
+export function clamp(value : number, min : number, max : number) : number {
+	return Math.min(Math.max(value, min), max)
+};
+
+/**
+ * 计算图像尺寸
+ * @param {number} width - 图像原始宽度
+ * @param {number} height - 图像原始高度
+ * @param {number} [clipWidth] - 图像剪辑宽度
+ * @param {number} [clipHeight] - 图像剪辑高度
+ * @param {number} [originWidth] - 图像原始宽度（备用）
+ * @param {number} [originHeight] - 图像原始高度（备用）
+ * @returns {{imageWidth: number, imageHeight: number}} - 计算后的图像尺寸
+ */
+export function calcImageSize(
+	width : number,
+	height : number,
+	originWidth : number,
+	originHeight : number,
+	clipWidth ?: number,
+	clipHeight ?: number) : number[] {
+
+	// 如果原始宽度和高度都为0，则将图像宽度设置为系统窗口宽度，高度设置为0
+	if (width == 0 && height == 0) {
+		return [sysinfo.windowWidth, 0]
+	}
+
+	// 使用剪辑宽度和高度，如果未提供则使用原始宽度和高度
+	const finalWidth = clipWidth ?? originWidth;
+	const finalHeight = clipHeight ?? originHeight;
+
+	// 根据宽高比计算最终的图像尺寸
+	if (width / height > finalWidth / finalHeight) {
+		return [
+			(width / height) * finalHeight,
+			finalHeight
+		]
+	} else {
+		return [
+			finalWidth,
+			(height / width) * finalWidth
+		]
+	}
+}
+
+/**
+ * 计算图片缩放比例
+ * @param {number} imageWidth 图片原始宽度
+ * @param {number} imageHeight 图片原始高度
+ * @param {number} clipWidth 裁剪区域宽度
+ * @param {number} clipHeight 裁剪区域高度
+ * @param {number} angle 图片旋转角度
+ * @param {number=} scale 图片缩放比例（可选，如果未提供则使用originScale）
+ * @returns {number} 计算后的图片缩放比例
+ */
+export function calcImageScale(
+	imageWidth : number,
+	imageHeight : number,
+	clipWidth : number,
+	clipHeight : number,
+	angle : number,
+	scale : number
+	) : number {
+	let _scale = scale
+	let _imageWidth = imageWidth
+	let _imageHeight = imageHeight
+	// 旋转角度导致宽高互换的情况
+	if ((angle / 90) % 2 != 0) {
+		_imageWidth = imageHeight
+		_imageHeight = imageWidth
+	}
+
+	// 计算缩放比例
+	const scaleX = clipWidth / _imageWidth;
+	const scaleY = clipHeight / _imageHeight;
+
+	// 如果旋转角度不为0且当前缩放比例等于最大缩放比例，则调整缩放比例
+	if (angle != 0 && scale == Math.max(clipWidth / _imageHeight, clipHeight / _imageWidth)) {
+		return Math.max(scaleX, scaleY);
+	}
+
+	// 根据裁剪区域调整缩放比例
+	if (_imageWidth * scale < clipWidth) {
+		_scale = scaleX;
+	}
+	if (_imageHeight * scale < clipHeight) {
+		_scale = Math.max(scale, scaleY);
+	}
+	return _scale
+}
+
+
+
+/**
+ * 计算图片在裁剪区域内的偏移量
+ * @param {number} imageLeft 图片左边缘的初始偏移量。
+ * @param {number} imageTop 图片顶边缘的初始偏移量。
+ * @param {number} imageWidth 图片的原始宽度。
+ * @param {number} imageHeight 图片的原始高度。
+ * @param {number} clipX 裁剪区域的左边缘位置。
+ * @param {number} clipY 裁剪区域的顶边缘位置。
+ * @param {number} clipWidth 裁剪区域的宽度。
+ * @param {number} clipHeight 裁剪区域的高度。
+ * @param {number} angle 图片的旋转角度。
+ * @param {number} scale 图片的缩放比例。
+ * @returns {OffsetAndScale} 包含计算后的偏移量left、top和缩放比例scale的对象。
+ */
+export function calcImageOffset(
+	imageLeft : number,
+	imageTop : number,
+	imageWidth : number,
+	imageHeight : number,
+	clipX : number,
+	clipY : number,
+	clipWidth : number,
+	clipHeight : number,
+	angle : number,
+	scale : number) : number[] {
+
+	let left = imageLeft;
+	let top = imageTop;
+
+
+	let _imageWidth = imageWidth
+	let _imageHeight = imageHeight
+	// 旋转角度导致宽高互换的情况
+	if ((angle / 90) % 2 != 0) {
+		_imageWidth = imageHeight
+		_imageHeight = imageWidth
+	}
+
+
+	// 计算当前图片尺寸
+	const currentImageWidth = _imageWidth * scale / 2;
+	const currentImageHeight = _imageHeight * scale / 2;
+
+	// 限制图片偏移量，确保图片在裁剪内
+	left = Math.min(left, clipX + currentImageWidth);
+	left = Math.max(left, clipX + clipWidth - currentImageWidth);
+	top = Math.min(top, clipY + currentImageHeight);
+	top = Math.max(top, clipY + clipHeight - currentImageHeight);
+
+
+	// return {
+	// 	left,
+	// 	top,
+	// 	scale
+	// }
+
+	return [left, top, scale]
+}
+
+/**
+ * 根据给定的宽度和高度计算直角三角形的斜边长度（勾股定理）
+ * @param {number} width - 直角三角形的宽度。
+ * @param {number} height - 直角三角形的高度。
+ * @returns {number} 返回直角三角形的斜边长度。
+ */
+export function calcPythagoreanTheorem(width : number, height : number) {
+	return Math.sqrt(Math.pow(width, 2) + Math.pow(height, 2));
+}
+
+
+/**
+ * 计算触摸点相对于给定点的偏移量
+ * @param {Point} point - 给定的点对象，包含 x 和 y 坐标。
+ * @param {number} clientX - 触摸点的客户端 x 坐标。
+ * @param {number} clientY - 触摸点的客户端 y 坐制。
+ * @returns {number[]} 返回一个包含两个数字的数组，分别表示触摸点相对于给定点的 x 和 y 偏移量。
+ */
+export function imageTouchMoveOfCalcOffset(point : Point, clientX : number, clientY : number) : number[] {
+	return [
+		clientX - point.x,
+		clientY - point.y,
+	]
+}
+
+
+/**
+ * 根据触摸点的位置确定点击的是裁剪框的哪个角
+ * @param {number} clipX - 裁剪框的 x 坐标。
+ * @param {number} clipY - 裁剪框的 y 坐标。
+ * @param {number} clipWidth - 裁剪框的宽度。
+ * @param {number} clipHeight - 裁剪框的高度。
+ * @param {number} currentX - 触摸点的 x 坐标。
+ * @param {number} currentY - 触摸点的 y 坐标。
+ * @returns {number} 返回点击的角，1 表示右下角，2 表示右上角，3 表示左上角，4 表示左下角；如果没有点击在角上，则返回 -1。
+ */
+export function determineDirection(clipX : number, clipY : number, clipWidth : number, clipHeight : number, currentX : number, currentY : number) : number {
+	/*
+	 * (右下>>1 右上>>2 左上>>3 左下>>4)
+	 */
+	let corner : number = -1;
+	/**
+	 * 思路：（利用直角坐标系）
+	 *  1.找出裁剪框中心点
+	 *  2.如点击坐标在上方点与左方点区域内，则点击为左上角
+	 *  3.如点击坐标在下方点与右方点区域内，则点击为右下角
+	 *  4.其他角同理
+	 */
+	const mainPoint = [clipX + clipWidth / 2, clipY + clipHeight / 2]; // 中心点
+	const currentPoint = [currentX, currentY]; // 触摸点
+
+	if (currentPoint[0] <= mainPoint[0] && currentPoint[1] <= mainPoint[1]) {
+		corner = 3; // 左上
+	} else if (currentPoint[0] >= mainPoint[0] && currentPoint[1] <= mainPoint[1]) {
+		corner = 2; // 右上
+	} else if (currentPoint[0] <= mainPoint[0] && currentPoint[1] >= mainPoint[1]) {
+		corner = 4; // 左下
+	} else if (currentPoint[0] >= mainPoint[0] && currentPoint[1] >= mainPoint[1]) {
+		corner = 1; // 右下
+	}
+	return corner;
+}
+
+/**
+ * 根据触摸事件更新裁剪框的尺寸和位置，并保持比例（如果需要）
+ * @param {number} clipWidth - 当前裁剪框的宽度。
+ * @param {number} clipHeight - 当前裁剪框的高度。
+ * @param {number} oldClipX - 当前裁剪框的 x 坐标。
+ * @param {number} oldClipY - 当前裁剪框的 y 坐标。
+ * @param {number} minWidth - 裁剪框允许的最小宽度。
+ * @param {number} maxWidth - 裁剪框允许的最大宽度。
+ * @param {number} minHeight - 裁剪框允许的最小高度。
+ * @param {number} maxHeight - 裁剪框允许的最大高度。
+ * @param {ClipperclipStart} clipStart - 包含裁剪框起始位置和拖动角的信息。
+ * @param {boolean} isLockRatio - 是否保持裁剪框的宽高比。
+ * @param {UniTouch} touch - 触摸事件对象，包含 clientX 和 clientY 属性。
+ * @returns {number[] | null} 如果裁剪框尺寸或位置发生变化，则返回一个包含新宽度、新高度、新 x 坐标和新 y 坐标的数组；否则返回 null。
+ */
+export function clipTouchMoveOfCalculate(
+	clipWidth : number,
+	clipHeight : number,
+	oldClipX : number,
+	oldClipY : number,
+	minWidth : number,
+	maxWidth : number,
+	minHeight : number,
+	maxHeight : number,
+	clipStart : ClipperclipStart,
+	isLockRatio : boolean,
+	touch : UniTouch) : number[] | null {
+	const clientX = touch.clientX;
+	// const clientY = touch.clientY;
+
+	// 获取裁剪框新尺寸
+	let width = clipWidth;
+	let height = clipHeight;
+	let clipX = oldClipX;
+	let clipY = oldClipY;
+
+	// 更新尺寸并保持比例
+	const updateSizeWithRatio = (newWidth : number) => {
+		width = newWidth;
+		height = isLockRatio ? width / (clipWidth / clipHeight) : height;
+	};
+	// 检查并修正尺寸
+	const checkAndCorrectSize = () : boolean => {
+		width = clamp(width, minWidth, maxWidth);
+		height = clamp(height, minHeight, maxHeight);
+		return width != clipWidth || height != clipHeight;
+	};
+	// 根据拖动位置更新尺寸和位置
+	switch (clipStart.corner) {
+		case 1:
+			updateSizeWithRatio(clipStart.width - clipStart.x + clientX);
+			if (!checkAndCorrectSize()) return null;
+			break;
+		case 2:
+			updateSizeWithRatio(clipStart.width - clipStart.x + clientX);
+			if (!checkAndCorrectSize()) return null;
+			clipY = clipStart.clipY - (height - clipStart.height);
+			break;
+		case 3:
+			updateSizeWithRatio(clipStart.x - clientX + clipStart.width);
+			if (!checkAndCorrectSize()) return null;
+			clipY = clipStart.clipY - (height - clipStart.height);
+			clipX = clipStart.clipX - (width - clipStart.width);
+			break;
+		case 4:
+			updateSizeWithRatio(clipStart.width + clipStart.x - clientX);
+			if (!checkAndCorrectSize()) return null;
+			clipX = clipStart.clipX - (width - clipStart.width);
+			break;
+		default:
+			return null;
+	}
+
+	return [
+		width,
+		height,
+		clipX,
+		clipY
+	]
+}
+
+
+
+/**
+ * 判断一个点是否在圆内（包括圆上）
+ * @param {Point} point - 要检查的点对象，包含 x 和 y 坐标。
+ * @param {Point} center - 圆心的点对象，包含 x 和 y 坐标。
+ * @param {number} [radius=10] - 圆的半径，默认值为 10。
+ * @returns {boolean} 如果点在圆内（包括圆上），则返回 true，否则返回 false。
+ */
+export function isPointInCircle(point : Point, center : Point, radius : number = 10) : boolean {
+	const dx = point.x - center.x;
+	const dy = point.y - center.y;
+	return Math.sqrt(dx * dx + dy * dy) <= radius;
+}
+
+/**
+ * 获取坐标在矩形的哪个顶点
+ * @param point 点的坐标 Point
+ * @param rectangle 多边形的
+ * @param radius 顶点的半径
+ * @returns 如果点在多边形顶点返回顶点下标
+ */
+export function getPointPositionInRectangle(
+	point : Point,
+	rectangle : Rectangle,
+	radius : number = 30
+	) : number | null {
+	const topLeft : Point = { x: rectangle.x, y: rectangle.y };
+	const topRight : Point = { x: rectangle.x + rectangle.width, y: rectangle.y };
+	const bottomLeft : Point = { x: rectangle.x, y: rectangle.y + rectangle.height };
+	const bottomRight : Point = { x: rectangle.x + rectangle.width, y: rectangle.y + rectangle.height };
+
+	const corners = [
+		bottomRight,
+		topRight,
+		topLeft,
+		bottomLeft,
+	];
+
+	for (let i = 0; i < corners.length; i++) {
+		if (isPointInCircle(point, corners[i], radius)) {
+			return i + 1;
+		}
+	}
+
+	return null;
+}
+
+/**
+ * 判断点是否在多边形内（使用射线法）
+ * @param point 点的坐标 Point
+ * @param vs 多边形的顶点数组，每个顶点是一个 Point 数组
+ * @param start 起始索引（可选，默认为0）
+ * @param end 结束索引（可选，默认为vs.length）
+ * @returns 如果点在多边形内返回 true，否则返回 false
+ */
+function pointInPolygonNested(point: Point, vs: Point[], start?: number, end?: number): boolean {
+    const {x, y} = point;
+    let inside = false;
+	start = start ?? 0;
+	end = end ?? vs.length
+    const len = end - start;
+    for (let i = 0, j = len - 1; i < len; j = i++) {
+        const xi = vs[i + start].x;
+		const yi = vs[i + start].y;
+        const xj = vs[j + start].x; 
+		const yj = vs[j + start].y;
+        const intersect = ((yi > y) !== (yj > y))
+            && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+        if (intersect) inside = !inside;
+    }
+    return inside;
+}
+
+/**
+ * 判断一个点是否在旋转后的矩形内（包括边界）
+ * @param {Point} point - 要检查的点对象，包含 x 和 y 坐标。
+ * @param {Rectangle} rect - 矩形对象，包含 x、y、width 和 height 属性。
+ * @param {number} scale - 矩形的缩放比例。
+ * @param {number} angle - 矩形旋转的角度（角度制）。
+ * @returns {boolean} 如果点在旋转后的矩形内（包括边界），则返回 true，否则返回 false。
+ */
+export function isPointInRotatedRectangle(
+	point : Point,
+	rect : Rectangle,
+	scale : number,
+	angle : number // 角度制
+	) : boolean {
+	// 将角度转换为弧度
+	const radians = (angle * Math.PI) / 180;
+
+	// 计算矩形的中心点
+	const rectCenterX = rect.x + rect.width / 2;
+	const rectCenterY = rect.y + rect.height / 2;
+
+	// 缩放矩形的宽高
+	const scaledWidth = rect.width * scale;
+	const scaledHeight = rect.height * scale;
+
+	// 旋转点坐标，基于矩形的中心点
+	const cosAngle = Math.cos(-radians);
+	const sinAngle = Math.sin(-radians);
+	// const rotatedPoint : Point = {
+	// 	x:
+	// 		cosAngle * (point.x - rectCenterX) -
+	// 		sinAngle * (point.y - rectCenterY) +
+	// 		rectCenterX,
+	// 	y:
+	// 		sinAngle * (point.x - rectCenterX) +
+	// 		cosAngle * (point.y - rectCenterY) +
+	// 		rectCenterY
+	// };
+	// 检查旋转后的点是否在未旋转的矩形内
+	// 这里我们需要计算旋转后的矩形的四个顶点，然后判断点是否在这个四边形内
+	const halfScaledWidth = scaledWidth / 2;
+	const halfScaledHeight = scaledHeight / 2;
+
+	// 计算旋转后的矩形的四个顶点
+	const topLeft : Point = {
+		x: rectCenterX - halfScaledWidth * cosAngle + halfScaledHeight * sinAngle,
+		y: rectCenterY - halfScaledWidth * sinAngle - halfScaledHeight * cosAngle
+	};
+	const topRight : Point = {
+		x: rectCenterX + halfScaledWidth * cosAngle + halfScaledHeight * sinAngle,
+		y: rectCenterY + halfScaledWidth * sinAngle - halfScaledHeight * cosAngle
+	};
+	const bottomRight : Point = {
+		x: rectCenterX + halfScaledWidth * cosAngle - halfScaledHeight * sinAngle,
+		y: rectCenterY + halfScaledWidth * sinAngle + halfScaledHeight * cosAngle
+	};
+	const bottomLeft : Point = {
+		x: rectCenterX - halfScaledWidth * cosAngle - halfScaledHeight * sinAngle,
+		y: rectCenterY - halfScaledWidth * sinAngle + halfScaledHeight * cosAngle
+	};
+	// 计算向量叉乘
+	function crossMul(v1 : Point, v2 : Point) : number {
+		return v1.x * v2.y - v1.y * v2.x;
+	}
+	// 判断两条线段是否相交
+	function checkCross(p1 : Point, p2 : Point, p3 : Point, p4 : Point) : boolean {
+		const v1 : Point = { x: p1.x - p3.x, y: p1.y - p3.y };
+		const v2 : Point = { x: p2.x - p3.x, y: p2.y - p3.y };
+
+		const v3 : Point = { x: p4.x - p3.x, y: p4.y - p3.y };
+		const v : number = crossMul(v1, v3) * crossMul(v2, v3);
+
+		const v1_2 : Point = { x: p3.x - p1.x, y: p3.y - p1.y };
+		const v2_2 : Point = { x: p4.x - p1.x, y: p4.y - p1.y };
+		const v3_2 : Point = { x: p2.x - p1.x, y: p2.y - p1.y };
+		return (v <= 0 && crossMul(v1_2, v3_2) * crossMul(v2_2, v3_2) <= 0);
+	}
+	
+	// 使用射线法判断点是否在四边形内
+	function isPointInPolygon(point : Point, polygon : Point[]) : boolean {
+		// const p1 : Point = point;
+		// const p2 : Point = { x: 1000000000000, y: point.y };
+		// let count = 0;
+		// // 对每条边都和射线作对比
+		// for (let i = 0; i < polygon.length - 1; i++) {
+		// 	const p3 : Point = polygon[i];
+		// 	const p4 : Point = polygon[i + 1];
+		// 	if (checkCross(p1, p2, p3, p4)) {
+		// 		count++;
+		// 	}
+		// }
+		// console.log('count', count)
+		// const p3 : Point = polygon[polygon.length - 1];
+		// const p4 : Point = polygon[0];
+		// if (checkCross(p1, p2, p3, p4)) {
+		// 	count++;
+		// }
+		// return count % 2 == 0 ? false : true;
+
+
+
+		let isInside = false;
+		for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+			if (
+				(polygon[i].y > point.y) != (polygon[j].y > point.y) &&
+				point.x <
+				((polygon[j].x - polygon[i].x) * (point.y - polygon[i].y)) /
+				(polygon[j].y - polygon[i].y) +
+				polygon[i].x
+			) {
+				isInside = !isInside;
+			}
+		}
+		return isInside;
+	}
+	
+	return isPointInPolygon(point, [
+		topLeft,
+		topRight,
+		bottomRight,
+		bottomLeft
+	]);
+}
+
+

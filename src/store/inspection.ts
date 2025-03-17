@@ -97,6 +97,7 @@ export const useInspection = defineStore(
 
         title: i.name,
 
+        resultType: i.resultType,
         comeTimeStr: i.comeTimeStr,
       })) || []
     })

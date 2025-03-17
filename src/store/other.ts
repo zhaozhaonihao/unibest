@@ -1,68 +1,66 @@
-import { getArticleList, getArticleSimpleDetail, getEmployeeList } from '@/service/static/other'
+import { getEmployeeList } from '@/service/static/other'
 
-const InitLocationInfo: UniApp.GetLocationSuccess = {
-  longitude: null,
-  latitude: null,
-  address: '',
-  speed: 0,
-  accuracy: 0,
-  altitude: 0,
-  verticalAccuracy: 0,
-  horizontalAccuracy: 0,
-}
 export const useOtherStore = defineStore(
   'other',
   () => {
-    const locationInfo = reactive(InitLocationInfo)
-    // 获取位置
+    // 经纬度信息
+    const locationInfo = ref<UniApp.GetLocationSuccess | null>(null)
+    const LocationInfo = computed(() => ({ lon: locationInfo.value?.longitude, lat: locationInfo.value?.latitude }))
+    // const GetLocation = async (): Promise<UniApp.GetLocationSuccess | null> => {
+    //   try {
+    //     console.log('开始获取位置...')
+    //     // TODO: H5获取不到`gcj02`坐标，需要进行一个转换
+    //     const location = await new Promise<UniApp.GetLocationSuccess>((resolve, reject) => {
+    //       uni.getLocation({
+    //         // #ifdef MP-WEIXIN
+    //         type: 'gcj02', // 返回国测局坐标
+    //         altitude: true, // 需要获取海拔信息
+    //         isHighAccuracy: true, // 启用高精度模式
+    //         highAccuracyExpireTime: 3100, // 高精度模式超时（毫秒）
+    //         // #endif
+    //         success: (e) => {
+    //           console.log(e)
+
+    //           resolve(e)
+    //         },
+    //         fail: reject,
+    //       })
+    //     })
+
+    //     locationInfo.value = location
+
+    //     // #ifdef H5
+    //     console.log('获取位置成功（WGS84）:', location)
+    //     const gcj02Location = wgs84ToGcj02(location.latitude, location.longitude)
+    //     console.log('转换后的 GCJ02 坐标:', gcj02Location)
+    //     locationInfo.value.latitude = gcj02Location.lat
+    //     locationInfo.value.longitude = gcj02Location.lon
+    //     // #endif
+
+    //     return locationInfo.value
+    //   }
+    //   catch (error) {
+    //     console.error('获取位置失败：', error)
+    //     locationInfo.value = null
+    //     return null
+    //   }
+    // }
+
     const GetLocation = () => {
       console.log('GetLocation')
 
       uni.getLocation({
         success: (res) => {
           console.log('获取位置成功：', res)
-          locationInfo.latitude = res.latitude
-          locationInfo.longitude = res.longitude
-          locationInfo.address = res.address
+          locationInfo.value.latitude = res.latitude
+          locationInfo.value.longitude = res.longitude
+          locationInfo.value.address = res.address
         },
         fail: (err) => {
           console.error('获取位置失败：', err)
         },
       })
     }
-
-    // 文章Keywords
-    const articlekeyWords = ref<string | undefined>()
-    const {
-      data: ArticleList,
-      run: RunGetArticleList,
-    } = useRequest(() => getArticleList({
-      keyWords: articlekeyWords.value,
-    }))
-    const articleList = computed(() => {
-      return ArticleList.value?.rows.map((i) => {
-        return {
-          id: i.articleID,
-          name: i.name,
-
-          src: i.faceImage,
-          title: i.title,
-          desc: i.description,
-          time: i.beginDateStr,
-
-          content: i.content,
-        }
-      }) || []
-    })
-
-    // 文章详情
-    const articleID = ref<string | undefined>()
-    const {
-      data: ArticleDetail,
-      run: RunGetArticleDetail,
-    } = useRequest(() => getArticleSimpleDetail({
-      articleID: articleID.value,
-    }))
 
     // 公司成员
     const { data: EmployeeList, run: RunGetEmployeeList } = useRequest(() => getEmployeeList())
@@ -82,17 +80,9 @@ export const useOtherStore = defineStore(
     })
 
     return {
+      LocationInfo,
       locationInfo,
       GetLocation,
-
-      articlekeyWords,
-      ArticleList,
-      articleList,
-      RunGetArticleList,
-
-      articleID,
-      ArticleDetail,
-      RunGetArticleDetail,
 
       EmployeeList,
       employeeList,

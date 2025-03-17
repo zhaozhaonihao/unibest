@@ -46,7 +46,7 @@ export default ({ command, mode }) => {
 
     plugins: [
       UniPages({
-        exclude: ['**/components/**/**.*'],
+        exclude: ['**/components/**/**.*', '**/backup/**/**.*'],
         routeBlockLang: 'json5', // 虽然设了默认值，但是vue文件还是要加上 lang="json5", 这样才能很好地格式化
         // homePage 通过 vue 文件的 route-block 的type="home"来设定
         // pages 目录为 src/pages，分包目录不能配置在pages目录下
@@ -83,7 +83,7 @@ export default ({ command, mode }) => {
           },
         ],
         dts: 'src/types/auto-import.d.ts',
-        dirs: ['src/composables', 'src/hooks', 'src/store'], // 自动导入 hooks
+        dirs: ['src/composables', 'src/hooks', 'src/store', 'src/utils'], // 自动导入 hooks
         eslintrc: { enabled: true },
         vueTemplate: true, // default false
       }),

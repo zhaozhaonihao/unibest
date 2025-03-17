@@ -1,0 +1,179 @@
+<template>
+	<view class="demo-block">
+		<text class="demo-block__title-text ultra">图片裁剪</text>
+		<text class="demo-block__desc-text" style="display: flex;">可用于图片头像等裁剪处理  。</text>
+		<view class="demo-block__body">
+			<view class="demo-block card">
+				<text class="demo-block__title-text large">基本用法</text>
+				<view class="demo-block__body row">
+					<image :src="url" v-if="url !=''" mode="widthFix"></image>
+					<l-clipper v-if="show" :image-url="imageUrl" @success="success" @cancel="show = false"/>
+					<button @tap="onClick">裁剪图片</button>
+				</view>
+			</view>
+			<view class="demo-block card">
+				<text class="demo-block__title-text large">插槽</text>
+				<view class="demo-block__body row">
+					<image :src="url1" v-if="url1 !=''" mode="widthFix"></image>
+					<l-clipper
+						v-if="show1" 
+						:isLockWidth="isLockWidth"
+						:isLockHeight="isLockHeight"
+						:isLockRatio="isLockRatio"
+						:isLimitMove="isLimitMove"
+						:isDisableScale="isDisableScale"
+						:isDisableRotate="isDisableRotate"
+						:isShowCancelBtn="isShowCancelBtn"
+						:isShowPhotoBtn="isShowPhotoBtn"
+						:isShowRotateBtn="isShowRotateBtn"
+						:isShowConfirmBtn="isShowConfirmBtn"
+						@success="handleClipperSuccess"
+						@cancel="show = false" >
+						<!-- 四个基本按钮插槽 -->
+						<view slot="cancel">取消</view>
+						<view slot="photo">选择图片</view>
+						<view slot="rotate">旋转</view>
+						<view slot="confirm">确定</view>
+						<!-- 默认插槽 -->
+						<view class="tools" style="flex-direction: row; flex-wrap: wrap;">
+							<view>
+								<text style="color: white;">显示取消按钮{{isShowCancelBtn}}</text>
+								<switch :checked="isShowCancelBtn" @change="($event: UniSwitchChangeEvent) => {isShowCancelBtn = $event.detail.value}"/>
+							</view>
+							<view>
+								<text style="color: white;">显示选择图片按钮</text>
+								<switch :checked="isShowPhotoBtn" @change="($event: UniSwitchChangeEvent) => {isShowPhotoBtn = $event.detail.value}" />
+							</view>
+							<view>
+								<text style="color: white;">显示旋转按钮</text>
+								<switch :checked="isShowRotateBtn" @change="($event: UniSwitchChangeEvent) => {isShowRotateBtn = $event.detail.value}" />
+							</view>
+							<view>
+								<text style="color: white;">显示确定按钮</text>
+								<switch :checked="isShowConfirmBtn" @change="($event: UniSwitchChangeEvent) => {isShowConfirmBtn = $event.detail.value}" />
+							</view>
+							<view>
+								<text style="color: white;">锁定裁剪框宽度</text>
+								<switch :checked="isLockWidth" @change="($event: UniSwitchChangeEvent) => {isLockWidth = $event.detail.value}" />
+							</view>
+							<view>
+								<text style="color: white;">锁定裁剪框高度</text>
+								<switch :checked="isLockHeight" @change="($event: UniSwitchChangeEvent) => {isLockHeight = $event.detail.value}" />
+							</view>
+							<view>
+								<text style="color: white;">锁定裁剪框比例</text>
+								<switch :checked="isLockRatio" @change="($event: UniSwitchChangeEvent) => {isLockRatio = $event.detail.value}" />
+							</view>
+							<view>
+								<text style="color: white;">限制移动范围</text>
+								<switch :checked="isLimitMove" @change="($event: UniSwitchChangeEvent) => {isLimitMove = $event.detail.value}" />
+							</view>
+							<view>
+								<text style="color: white;">禁止缩放</text>
+								<switch :checked="isDisableScale" @change="($event: UniSwitchChangeEvent) => {isDisableScale = $event.detail.value}" />
+							</view>
+							<view>
+								<text style="color: white;">禁止旋转</text>
+								<switch :checked="isDisableRotate" @change="($event: UniSwitchChangeEvent) => {isDisableRotate = $event.detail.value}" />
+							</view>
+						</view>
+					</l-clipper>
+					<button @tap="onClick2">裁剪图片</button>
+				</view>
+			</view>
+		</view>
+	</view>
+</template>
+
+
+
+<script setup lang="uts">
+	const imageUrl = 'https://img12.360buyimg.com/pop/s1180x940_jfs/t1/97205/26/1142/87801/5dbac55aEf795d962/48a4d7a63ff80b8b.jpg';
+	const url = ref('')
+	const url1 = ref('')
+	const show = ref(false)
+	const show1 = ref(false)
+	
+	const isLockWidth = ref(false)
+	const isLockHeight = ref(false)
+	const isLockRatio = ref(true)
+	const isLimitMove = ref(false)
+	const isDisableScale = ref(false)
+	const isDisableRotate = ref(false)
+	const isShowCancelBtn = ref(true)
+	const isShowPhotoBtn = ref(true)
+	const isShowRotateBtn = ref(true)
+	const isShowConfirmBtn = ref(true)
+	
+	const onClick = ()=>{
+		show.value = true;
+	}
+	const onClick2 = ()=>{
+		show1.value = true;
+	}
+	const success = (res: UTSJSONObject) => {
+		url.value = `${res['url'] ?? ''}`
+		show.value = false
+	}
+	
+	const handleClipperSuccess = (res: UTSJSONObject) =>{
+		url1.value = `${res['url'] ?? ''}`
+		show1.value = false
+	}
+
+</script>
+<style lang="scss">
+	.demo-block {
+		margin: 32px 10px 0;
+
+		// overflow: visible;
+		&.card {
+			background-color: white;
+			padding: 30rpx;
+			margin-bottom: 20rpx !important;
+		}
+
+		&__title {
+			margin: 0;
+			margin-top: 8px;
+
+			&-text {
+				color: rgba(0, 0, 0, 0.6);
+				font-weight: 400;
+				font-size: 14px;
+				line-height: 16px;
+
+				&.large {
+					color: rgba(0, 0, 0, 0.9);
+					font-size: 18px;
+					font-weight: 700;
+					line-height: 26px;
+				}
+
+				&.ultra {
+					color: rgba(0, 0, 0, 0.9);
+					font-size: 24px;
+					font-weight: 700;
+					line-height: 32px;
+				}
+			}
+		}
+
+		&__desc-text {
+			color: rgba(0, 0, 0, 0.6);
+			margin: 8px 16px 0 0;
+			font-size: 14px;
+			line-height: 22px;
+		}
+
+		&__body {
+			margin: 16px 0;
+			overflow: visible;
+
+			.demo-block {
+				// margin-top: 0px;
+				margin: 0;
+			}
+		}
+	}
+</style>

@@ -16,42 +16,81 @@ export const useUserStore = defineStore(
   'user',
   () => {
     const openID = ref<string | undefined>()
-    const getOpenId = () => {
-      if (!openID.value) {
+    const getOpenId = (): Promise<string> => {
+      return new Promise((resolve, reject) => {
+        if (openID.value) {
+          return resolve(openID.value)
+        }
+
         // #ifdef MP-WEIXIN
         uni.login({
           provider: 'weixin',
           success: async ({ code }) => {
-            const { run } = useRequest(() => getWeiXinAppOpenId(code))
-            openID.value = (await run()).openID
-            await onLogin()
+            try {
+              const { openID: openId } = await getWeiXinAppOpenId(code)
+              openID.value = openId
+              resolve(openID.value)
+            }
+            catch (error) {
+              reject(error)
+            }
+          },
+          fail: (error) => {
+            reject(error)
           },
         })
         // #endif
+
         // #ifdef H5
         console.log('🐛 发起网络请求获取 openID ......')
-        openID.value = 'oMtfx62PLTdgQgjO98eFa789CAx0'
+        openID.value = import.meta.env.VITE_WX_OPENID
+        resolve(openID.value)
         // #endif
-      }
-
-      return openID.value
+      })
     }
 
-    const { data: loginSession, run: RunGetIDFastLogin } = useRequest(() => openIDorUnionIDFastLogin(openID.value))
+    const loginSession = ref<ILoginSession | undefined>()
+
     const { data: MyMajorList, run: RunGetMyMajor } = useRequest(() => getMyMemberMajorList())
     const { data: MyCompanyAndEmployeeList, run: RunGetMyCompanyAndEmployee } = useRequest(() => getMyCompanyAndEmployeeList())
     const { data: OneMemberDetail, run: RunGetOneMemberDetail } = useRequest(() => getOneMemberDetail(loginSession.value?.memberID))
     const { data: BandingEmployee, run: RunBandingEmployee } = useRequest(() => bandingEmployeeWithPhone(OneMemberDetail.value?.phone))
-    const onLogin = async () => {
-      if (openID.value) {
-        // 静态登录
-        await RunGetIDFastLogin()
-        if (loginSession.value) {
-          loginSession.value = { ...loginSession.value, time: dayjs() }
+
+    // 函数重载声明
+    function handleAuth(action: 'wxLogin'): Promise<void>
+    function handleAuth(action: 'wxRegister', params: { phone: string, name: string }): Promise<void>
+    async function handleAuth(action: 'wxLogin' | 'wxRegister', params?: { phone: string, name: string }): Promise<void> {
+      try {
+        // 获取 openID
+        const openID = await getOpenId()
+
+        let sessionID: string
+        let memberID: string
+
+        switch (action) {
+          case 'wxLogin':
+            ({ sessionID, memberID } = await openIDorUnionIDFastLogin(openID))
+            break
+
+          case 'wxRegister':{
+            const { phone, name } = params
+            if (!phone || !name) {
+              throw new Error('缺少注册所需的 phone 或 name 参数')
+            }
+
+            ({ sessionID, memberID } = await memberPhoneRegister({ phone, name, openID }))
+          }
+            break
+          default:
+            throw new Error('未知的登录方式')
         }
+
+        // 存储登录信息
+        loginSession.value = { sessionID, memberID, time: dayjs() }
 
         // 获取身份列表
         await RunGetMyMajor()
+
         // 获取会员信息
         await RunGetOneMemberDetail()
 
@@ -63,6 +102,9 @@ export const useUserStore = defineStore(
           }
         }
       }
+      catch (error) {
+        console.error(`${action}过程中发生错误:`, error)
+      }
     }
 
     const isLogined = computed(() => loginSession.value?.memberID && loginSession.value?.sessionID)
@@ -73,27 +115,13 @@ export const useUserStore = defineStore(
     const isChengguan = computed(() => {
       return MyMajorList.value?.rows.some(item => item.majorID === MAJOR_ID_CHENGGUAN)
     })
-    const onRegister = async (phoneNumber: string, nickname: string) => {
-      const { data: registerSession, run: RunPhoneRegister } = useRequest(() => memberPhoneRegister(phoneNumber, nickname, openID.value))
-      await RunPhoneRegister()
-      if (!loginSession.value) {
-        loginSession.value = { ...registerSession.value, time: dayjs() }
+
+    const employee = computed(() => {
+      return {
+        id: MyCompanyAndEmployeeList.value?.[0]?.employeeID ?? '',
+        name: MyCompanyAndEmployeeList.value?.[0]?.employeeName ?? '',
       }
-
-      // 获取身份列表
-      await RunGetMyMajor()
-      // 获取会员信息
-      await RunGetOneMemberDetail()
-
-      if (isChengguan.value) {
-        await RunGetMyCompanyAndEmployee()
-
-        if (!MyCompanyAndEmployeeList.value.length) {
-          await RunBandingEmployee()
-        }
-      }
-    }
-
+    })
     const employeeID = computed(() => MyCompanyAndEmployeeList.value?.[0]?.employeeID ?? '')
 
     // 头像
@@ -104,7 +132,7 @@ export const useUserStore = defineStore(
       getOpenId,
 
       loginSession,
-      onLogin,
+      handleAuth,
 
       MyMajorList,
       MyCompanyAndEmployeeList,
@@ -115,11 +143,11 @@ export const useUserStore = defineStore(
       isLogined,
       isLoginExpired,
       isChengguan,
+      employee,
       employeeID,
 
       avatarURL,
 
-      onRegister,
     }
   },
   {

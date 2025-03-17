@@ -111,6 +111,8 @@ export function getRouteInstanceDotList(params: {
     routeInstanceDotID: string
     /** 名称 */
     name: string
+    /** 检查结果 */
+    resultType: string
     /** 到达时间字符串 */
     comeTimeStr: string
   }>>('/getRouteInstanceDotList.json', {

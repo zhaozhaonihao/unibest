@@ -23,10 +23,19 @@ function onFeature() {
   uni.navigateTo({ url: '/pages/feature/index' })
 }
 
-function onPhone() {
-  uni.makePhoneCall({
-    phoneNumber: '19521491949',
-  })
+function onFind() {
+  uni.navigateTo({ url: '/pages/find/index' })
+}
+
+function onVehicle() {
+  uni.navigateTo({ url: '/pages/vehicle/index' })
+}
+function addVehicle() {
+  uni.navigateTo({ url: '/pages/vehicle/add' })
+}
+
+function onLogin() {
+  uni.navigateTo({ url: '/pages/login/index' })
 }
 </script>
 
@@ -44,11 +53,12 @@ function onPhone() {
     </view>
 
     <Divider />
+    <wd-button plain @click="onLogin">
+      登录
+    </wd-button>
 
-    <view>内容</view>
-
-    <wd-button plain @click="onPhone">
-      拨号呼叫
+    <wd-button plain @click="onFind">
+      查车
     </wd-button>
 
     <wd-button plain @click="onFeature">
@@ -60,6 +70,12 @@ function onPhone() {
     </wd-button>
     <wd-button plain @click="onMove">
       挪车
+    </wd-button>
+    <wd-button plain @click="onVehicle">
+      车辆列表
+    </wd-button>
+    <wd-button plain @click="addVehicle">
+      新增车辆
     </wd-button>
 
     <!-- <picker @change="onParkChange" range-key="name" :value="parkIndex" :range="parkOptions">

@@ -8,7 +8,7 @@ onLaunch(async () => {
   userStore.getOpenId()
 
   if (userStore.isLoginExpired) {
-    await userStore.onLogin()
+    await userStore.handleAuth('wxLogin')
   }
 })
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { id, title = '默认标题', src, desc = '默认描述', time = '2000-01-01' } = defineProps<{
+const { id, title, src, desc, time } = defineProps<{
   id: string
   title?: string
   src?: string

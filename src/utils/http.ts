@@ -2,7 +2,7 @@ import type { CustomRequestOptions } from '@/interceptors/request'
 
 export function http<T>(options: CustomRequestOptions) {
   // 1. 返回 Promise 对象
-  return new Promise<IResData<T>>((resolve, reject) => {
+  return new Promise<T>((resolve, reject) => {
     uni.request({
       ...options,
       dataType: 'json',
@@ -49,11 +49,16 @@ export function http<T>(options: CustomRequestOptions) {
           `\n--------------------------------------------------`,
         )
 
+        function checkStringBoth(s: string): boolean {
+          return s.includes('请先登录') || s.includes('sessionID')
+        }
+
         // 如果后端返回 10000，表示需要重新登录
-        if (header?.code === 10000 && header.msg === '请先登录') {
-          // 调用 onLogin 获取新 token
+        // header?.code === 10000 &&
+        if (checkStringBoth(header.msg)) {
+          console.log('需要重新登录: ', header.msg)
           useUserStore()
-            .onLogin()
+            .handleAuth('wxLogin')
             // 重发请求
             .then(() => http<T>(options))
             .then(reResult => resolve(reResult))

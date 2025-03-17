@@ -17,7 +17,7 @@ import headerWrap from './components/headerWrap.vue'
 const message = useMessage()
 const toast = useToast()
 
-const { locationInfo, employeeList, handleEmployee } = storeToRefs(useOtherStore())
+const { LocationInfo, employeeList, handleEmployee } = storeToRefs(useOtherStore())
 const { GetLocation, RunGetEmployeeList } = useOtherStore()
 
 const {
@@ -60,8 +60,8 @@ function RmImageList(idx: number) {
 const checkDotParams = reactive<CheckOneDot>({
   routeInstanceDotID: HandleRouteInstanceDot.value.id,
   resultType: 1,
-  realMapX: `${locationInfo.value.longitude}`,
-  realMapY: `${locationInfo.value.latitude}`,
+  realMapX: `${LocationInfo.value.lon}`,
+  realMapY: `${LocationInfo.value.lat}`,
   resultMemo: '',
   problemNumber: '',
   imageNumber: '',

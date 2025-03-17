@@ -1,12 +1,14 @@
 import { http } from '@/utils/http'
 
 /** 登录授权页面 获取手机号 */
-export function getWeixinMemberPhone(encryptedData: string, iv: string, code: string) {
+export function getWeixinMemberPhone(params: {
+  encryptedData: string
+  iv: string
+  js_code: string
+}) {
   return http.get<{ phoneNumber: string }>('/getWeixinMemberPhone.json', {
     appID: APPID,
-    encryptedData,
-    iv,
-    js_code: code,
+    ...params,
   })
 }
 
@@ -37,6 +39,7 @@ export function getMyMemberMajorList() {
 
 export interface CompanyAndEmployee {
   employeeID: string
+  employeeName: string
 }
 /** 查询所属公司 */
 export function getMyCompanyAndEmployeeList() {
@@ -69,16 +72,16 @@ export function searchMemberByPhone(phone: string) {
 }
 
 /** 注册 */
-export function memberPhoneRegister(phoneNumber: string, nickname: string, openID: string) {
+export function memberPhoneRegister(params: { phone: string, name: string, openID: string }) {
   return http.get<ILoginSession>('/memberPhoneRegister.json', {
     deviceID: DEVICEID,
     siteID: SITEID,
-    phone: phoneNumber,
-    loginName: nickname,
-    name: nickname,
-    shortName: nickname,
+    phone: params.phone,
+    loginName: params.phone,
+    name: params.name,
+    shortName: params.name,
     verifyCode: '999999',
     password: '111111',
-    openID,
+    openID: params.openID,
   })
 }
