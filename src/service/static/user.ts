@@ -1,5 +1,17 @@
 import { http } from '@/utils/http'
 
+export interface IPerson {
+  peopleID: string
+  name: string
+  approveStatus: number
+  approveDescription: string
+  approveTime: string
+  faceImage: string
+  backImage: string
+  agreementStatus: boolean
+  idNumber: string
+}
+
 /** 更新居住小区 */
 function updateMyMemberPropertyID(propertyID: string) {
   return http.get('/updateMyMemberPropertyID', { propertyID })
@@ -25,8 +37,20 @@ function uploadOneFileToQiniu(fileBucketID: string) {
   return http.get('/uploadOneFileToQiniu.json', { fileBucketID })
 }
 
+/** 实名认证 */
+function queryMemberRealNameStatus(loginSession: ILoginSession) {
+  return http.get<IPerson>('/queryMemberRealNameStatus.json', loginSession)
+}
+
+/** 上传实名验证 */
+function applyRealNameVerify(iPerson: IPerson) {
+  return http.get('/applyRealNameVerify.json', { ...iPerson, isChinese: '1' })
+}
+
 export {
+  applyRealNameVerify,
   getPropertyList,
+  queryMemberRealNameStatus,
   updateMyMemberAvatar,
   updateMyMemberPropertyID,
   updateMyMemberShortname,
