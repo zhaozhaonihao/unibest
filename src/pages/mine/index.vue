@@ -20,7 +20,7 @@ const {
 
 const shortcuts = ref([
   { label: '邀请好友', icon: 'i-tabler:user-plus' },
-  { label: '实名认证', icon: 'i-tabler:id' },
+  { url: '/pages/mine/identity', label: '实名认证', icon: 'i-tabler:id' },
   { label: '每日签到', icon: 'i-tabler:calendar-check' },
   { label: '我的积分', icon: 'i-tabler:coins' },
   { label: '钱包', icon: 'i-tabler:wallet' },
@@ -44,6 +44,12 @@ function onUserInfo() {
 // 用户登录
 function toLoginPage() {
   uni.navigateTo({ url: '/pages/login/index' })
+}
+
+// 跳转通用模块
+function navToPrivacy(item: any) {
+  console.log('item.name', item)
+  uni.navigateTo({ url: `${item.url}` })
 }
 </script>
 
@@ -77,19 +83,21 @@ function toLoginPage() {
     <Divider />
 
     <view class="grid grid-cols-4 gap-2">
-      <view v-for="item in shortcuts" :key="item.label" class="flex flex-col justify-center items-center gap-2 p-2 rounded" hover-class="bg-[rgba(0,0,0,0.06)]!">
-        <view class="text-5 c-[#1e7aff]" :class="item.icon" />
-        <view class="text-3">
-          {{ item.label }}
+      <template v-for="item in shortcuts" :key="item.label">
+        <view class="flex flex-col justify-center items-center gap-2 p-2 rounded" hover-class="bg-[rgba(0,0,0,0.06)]!" @click="navToPrivacy(item)">
+          <view class="text-5 c-[#1e7aff]" :class="item.icon" />
+          <view class="text-3">
+            {{ item.label }}
+          </view>
         </view>
-      </view>
+      </template>
     </view>
 
     <Divider />
 
     <view>
       <template v-for="item in settings" :key="item.label">
-        <Cell class="rounded-0!" :icon="item.icon" :title="item.label" />
+        <Cell class="rounded-0!" :icon="item.icon" :title="item.label" @click="navToPrivacy(item)" />
         <Divider v-if="item.label !== '关于我们'" />
       </template>
     </view>
