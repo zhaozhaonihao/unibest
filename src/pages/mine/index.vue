@@ -55,6 +55,7 @@ async function navToPrivacy(item: any) {
     url: `${item.url}?name=${item.name}`,
     success: () => { uni.setNavigationBarTitle({ title: item.label }) },
   })
+
 }
 </script>
 
