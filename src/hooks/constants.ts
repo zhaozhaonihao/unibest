@@ -29,6 +29,16 @@ export const FILEBUCKETID = '8a2f462a850617e301851e5760810d72'
 export const OUTTOKEN = 'F5BBFA3F7B29D44D8C860F262A848697'
 /** 城管人员身份 */
 export const MAJOR_ID_CHENGGUAN = 'ff808081945dba2f0194644301250004'
+/** 注册协议文章ID */
+export const REGISTER_AGREEMENT_ID = 'ff80808194077da801941571b0ec000b'
+/** 隐私协议文章ID */
+export const PRIVACY_AGREEMENT_ID = 'ff80808194077da801941571b0ec000b'
+/** 操作手册文章ID */
+export const OPERATION_MANUAL_ID = 'ec8f9abe9b85416d96816644a0b7c764'
+/** 常见问题文章ID */
+export const COMMON_QUESTION_ID = '72ae734853b5421f94e9cb49ecf84f18'
+/** 关于我们文章ID */
+export const ABOUT_US_ID = 'ff80808194077da801941571b0ec000b'
 
 /** 获取文章[getArticleList.json]  contentType 可能的取值 */
 export enum ContentTypeEnum {

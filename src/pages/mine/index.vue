@@ -12,6 +12,8 @@
 import Cell from '@/components/Cell/index.vue'
 import Divider from '@/components/Divider/index.vue'
 
+const { articleID } = storeToRefs(useArticleStore())
+
 const {
   isLogined,
   OneMemberDetail: userInfo,
@@ -28,11 +30,11 @@ const shortcuts = ref([
 ])
 
 const settings = ref([
-  { label: '隐私协议', icon: 'i-tabler:shield-lock' },
-  { label: '注册协议', icon: 'i-tabler:file-text' },
-  { label: '操作手册', icon: 'i-tabler:book' },
-  { label: '常见问题', icon: 'i-tabler:help-circle' },
-  { label: '关于我们', icon: 'i-tabler:info-circle' },
+  { name: PRIVACY_AGREEMENT_ID, url: '/pages/ArticleDetail', label: '隐私协议', icon: 'i-tabler:shield-lock' },
+  { name: REGISTER_AGREEMENT_ID, url: '/pages/ArticleDetail', label: '注册协议', icon: 'i-tabler:file-text' },
+  { name: OPERATION_MANUAL_ID, url: '/pages/mine/operation', label: '操作手册', icon: 'i-tabler:book' },
+  { name: COMMON_QUESTION_ID, url: '/pages/mine/operation', label: '常见问题', icon: 'i-tabler:help-circle' },
+  { name: ABOUT_US_ID, url: '/pages/ArticleDetail', label: '关于我们', icon: 'i-tabler:info-circle' },
 ])
 
 // 跳转用户信息
@@ -46,10 +48,13 @@ function toLoginPage() {
   uni.navigateTo({ url: '/pages/login/index' })
 }
 
-// 跳转通用模块
-function navToPrivacy(item: any) {
-  console.log('item.name', item)
-  uni.navigateTo({ url: `${item.url}` })
+async function navToPrivacy(item: any) {
+  articleID.value = item.name
+  console.log('item.url', item.url)
+  uni.navigateTo({
+    url: `${item.url}?name=${item.name}`,
+    success: () => { uni.setNavigationBarTitle({ title: item.label }) },
+  })
 }
 </script>
 
